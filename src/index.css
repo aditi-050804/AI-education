@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-parchment: #F8F4EB;
+    --ink-color: #0E1729;
+    --gold-accent: #C5A059;
+  }
+  
+  .dark {
+    --bg-parchment: #060B14;
+    --ink-color: #F4ECE0;
+    --gold-accent: #D4AF37;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: var(--bg-parchment);
+    color: var(--ink-color);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Cormorant Garamond', 'Cinzel', serif;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Vintage Paper & Parchment Subtle Noise */
+.parchment-grain {
+  background-color: #F8F4EB;
+  background-image: radial-gradient(rgba(197, 160, 89, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .parchment-grain {
+  background-color: #060B14;
+  background-image: radial-gradient(rgba(212, 175, 55, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Classical Architectural Engraving Grid Lines */
+.engraving-lines {
+  background-image: linear-gradient(0deg, rgba(14, 23, 41, 0.035) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(14, 23, 41, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.dark .engraving-lines {
+  background-image: linear-gradient(0deg, rgba(244, 236, 224, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(244, 236, 224, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* AI Luminous Line Pulse */
+.ai-line-pulse {
+  stroke-dasharray: 8 8;
+  animation: strokeFlow 20s linear infinite;
+}
+
+@keyframes strokeFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 500;
+  }
+}
+
+/* Antique Gold Foil Accent Borders */
+.gold-border {
+  border-color: rgba(197, 160, 89, 0.35);
+}
+
+.dark .gold-border {
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(197, 160, 89, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 160, 89, 0.7);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
