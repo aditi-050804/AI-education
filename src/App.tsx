@@ -88,7 +88,7 @@ export function AppContent() {
               />
             )}
             {currentPage === 'contact' && (
-              <ContactPage />
+              <ContactPage onOpenDemo={() => setIsDemoOpen(true)} />
             )}
           </motion.div>
         </AnimatePresence>
