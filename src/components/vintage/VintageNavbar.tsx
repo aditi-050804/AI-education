@@ -103,7 +103,7 @@ export const VintageNavbar: React.FC<VintageNavbarProps> = ({ currentPage, onNav
               className="relative px-5 py-2.5 rounded-full border border-[#C5A059] text-xs font-serif italic font-bold tracking-wide text-[#161D2B] dark:text-[#F4ECE0] bg-[#FAF6EE]/80 dark:bg-[#0E1729]/80 hover:bg-[#C5A059] hover:text-white dark:hover:bg-[#D4AF37] dark:hover:text-black transition-all duration-300 shadow-sm flex items-center gap-2"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#38BDF8]" />
-              <span>Book a Demo</span>
+              <span>Get Started</span>
             </button>
           </div>
 
@@ -154,7 +154,7 @@ export const VintageNavbar: React.FC<VintageNavbarProps> = ({ currentPage, onNav
                   }}
                   className="w-full py-3 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-sm font-bold italic"
                 >
-                  Book an Institutional Demo
+                  Get Started
                 </button>
               </div>
             </div>

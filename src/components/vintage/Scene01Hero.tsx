@@ -76,7 +76,7 @@ export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore 
               className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-base font-bold italic tracking-wide hover:bg-[#C5A059] dark:hover:bg-[#D4AF37] hover:text-white transition-all duration-300 shadow-md flex items-center justify-center gap-2 group"
             >
               <Sparkles className="w-4 h-4 text-[#38BDF8]" />
-              <span>Book a Demo</span>
+              <span>Get Started</span>
             </button>
 
             <button
