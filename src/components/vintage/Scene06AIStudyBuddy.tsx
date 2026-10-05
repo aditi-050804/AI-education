@@ -43,7 +43,7 @@ export const Scene06AIStudyBuddy: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             AI that learns from your curriculum.
           </h2>
-          <p className="font-serif text-lg sm:text-xl italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg sm:text-xl font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Grounded in your institution’s own learning material.
           </p>
 
@@ -51,7 +51,7 @@ export const Scene06AIStudyBuddy: React.FC = () => {
           <div className="mt-6 flex justify-center gap-2">
             <button
               onClick={() => setSelectedSubject('botany')}
-              className={`px-4 py-1.5 rounded-full text-xs font-serif italic transition-all border ${
+              className={`px-4 py-1.5 rounded-full text-xs font-serif font-semibold transition-all border ${
                 selectedSubject === 'botany'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0]'
                   : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -61,7 +61,7 @@ export const Scene06AIStudyBuddy: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedSubject('law')}
-              className={`px-4 py-1.5 rounded-full text-xs font-serif italic transition-all border ${
+              className={`px-4 py-1.5 rounded-full text-xs font-serif font-semibold transition-all border ${
                 selectedSubject === 'law'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0]'
                   : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -71,7 +71,7 @@ export const Scene06AIStudyBuddy: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedSubject('physics')}
-              className={`px-4 py-1.5 rounded-full text-xs font-serif italic transition-all border ${
+              className={`px-4 py-1.5 rounded-full text-xs font-serif font-semibold transition-all border ${
                 selectedSubject === 'physics'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0]'
                   : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -102,14 +102,14 @@ export const Scene06AIStudyBuddy: React.FC = () => {
                   <span>Folio #{curr.citation.split('•')[2]}</span>
                 </div>
 
-                <div className="font-serif italic text-xs text-[#8C6B28] dark:text-[#C5A059] mb-1">
+                <div className="font-serif font-semibold text-xs text-[#8C6B28] dark:text-[#C5A059] mb-1">
                   {curr.textbook}
                 </div>
                 <h4 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mb-4">
                   “{curr.question}”
                 </h4>
 
-                <div className="p-4 rounded-xl border border-[#C5A059]/30 bg-[#FAF6EE] dark:bg-[#111A2E] text-xs font-serif leading-relaxed text-[#586274] dark:text-[#A7B5CC]">
+                <div className="p-4 rounded-xl border border-[#C5A059]/30 bg-[#FAF6EE] dark:bg-[#111A2E] text-xs font-serif leading-relaxed text-[#2D3748] dark:text-[#CBD5E1]">
                   <span className="font-bold text-[#161D2B] dark:text-[#F4ECE0]">Indexed Source Paragraph: </span>
                   {curr.quote}
                 </div>

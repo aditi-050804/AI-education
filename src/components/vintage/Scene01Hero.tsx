@@ -51,7 +51,7 @@ export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore 
             className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#161D2B] dark:text-[#F4ECE0] leading-[1.08]"
           >
             Where education <br />
-            <span className="italic font-normal text-[#8C6B28] dark:text-[#D4AF37]">meets intelligence.</span>
+            <span className="font-bold text-[#8C6B28] dark:text-[#D4AF37]">meets intelligence.</span>
           </motion.h1>
 
           {/* 1-2 line concise supporting line */}
@@ -59,7 +59,7 @@ export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.35 }}
-            className="text-base sm:text-lg text-[#525E75] dark:text-[#A7B5CC] max-w-2xl mx-auto font-serif italic leading-relaxed"
+            className="text-base sm:text-lg text-[#2D3748] dark:text-[#E2E8F0] max-w-2xl mx-auto font-serif font-semibold leading-relaxed"
           >
             An intelligent digital campus for modern institutions. Bridging centuries of academic tradition with grounded AI.
           </motion.p>
@@ -73,7 +73,7 @@ export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore 
           >
             <button
               onClick={onOpenDemo}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-base font-bold italic tracking-wide hover:bg-[#C5A059] dark:hover:bg-[#D4AF37] hover:text-white transition-all duration-300 shadow-md flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-base font-bold tracking-wide hover:bg-[#C5A059] dark:hover:bg-[#D4AF37] hover:text-white transition-all duration-300 shadow-md flex items-center justify-center gap-2 group"
             >
               <Sparkles className="w-4 h-4 text-[#38BDF8]" />
               <span>Get Started</span>
@@ -81,7 +81,7 @@ export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore 
 
             <button
               onClick={onExplore}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full border border-[#C5A059]/60 hover:border-[#C5A059] text-[#161D2B] dark:text-[#F4ECE0] font-serif text-base font-normal italic hover:bg-[#FAF6EE] dark:hover:bg-[#0E1729] transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full border border-[#C5A059]/60 hover:border-[#C5A059] text-[#161D2B] dark:text-[#F4ECE0] font-serif text-base font-semibold hover:bg-[#FAF6EE] dark:hover:bg-[#0E1729] transition-all duration-300 flex items-center justify-center gap-2"
             >
               <BookOpen className="w-4 h-4 text-[#C5A059]" />
               <span>Explore the Campus</span>

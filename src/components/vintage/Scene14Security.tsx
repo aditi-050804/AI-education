@@ -25,7 +25,7 @@ export const Scene14Security: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             Built to protect the campus.
           </h2>
-          <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Ancient academic archives safeguarded by institutional cloud cryptography.
           </p>
 
@@ -72,7 +72,7 @@ export const Scene14Security: React.FC = () => {
                       <h4 className="text-base sm:text-lg font-bold">
                         {tier.name}
                       </h4>
-                      <p className={`text-xs italic leading-tight ${isSelected ? 'text-[#C5A059]' : 'text-[#586274] dark:text-[#A7B5CC]'}`}>
+                      <p className={`text-xs font-semibold leading-tight ${isSelected ? 'text-[#C5A059]' : 'text-[#2D3748] dark:text-[#CBD5E1]'}`}>
                         {tier.detail}
                       </p>
                     </div>

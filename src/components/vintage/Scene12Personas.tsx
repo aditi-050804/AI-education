@@ -35,7 +35,7 @@ export const Scene12Personas: React.FC = () => {
         <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
           Built for everyone on campus.
         </h2>
-        <p className="font-serif text-base italic text-[#586274] dark:text-[#A7B5CC]">
+        <p className="font-serif text-base font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
           Hover or select each role to see their primary purpose across the digital campus.
         </p>
 
@@ -46,7 +46,7 @@ export const Scene12Personas: React.FC = () => {
               key={p.id}
               onClick={() => setActivePersona(p.id)}
               onMouseEnter={() => setActivePersona(p.id)}
-              className={`px-4 py-1.5 rounded-full text-xs font-serif italic border transition-all ${
+              className={`px-4 py-1.5 rounded-full text-xs font-serif font-semibold border transition-all ${
                 activePersona === p.id
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#C5A059] shadow-md scale-105'
                   : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -103,7 +103,7 @@ export const Scene12Personas: React.FC = () => {
               <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#8C6B28] dark:text-[#C5A059]">
                 {current.role} • {current.location}
               </span>
-              <h3 className="text-2xl sm:text-3xl font-bold italic text-[#161D2B] dark:text-[#F4ECE0] mt-1">
+              <h3 className="text-2xl sm:text-3xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-1">
                 “{current.oneSentence}”
               </h3>
             </motion.div>

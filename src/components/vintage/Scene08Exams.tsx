@@ -17,7 +17,7 @@ export const Scene08Exams: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             From admission to assessment.
           </h2>
-          <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Paper examination slips evolve into verified QR credentials and instant AI rubric evaluation.
           </p>
 
@@ -27,7 +27,7 @@ export const Scene08Exams: React.FC = () => {
               <button
                 key={i}
                 onClick={() => setExamStep(i + 1)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-serif italic border transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-serif font-semibold border transition-all ${
                   examStep === i + 1
                     ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0]'
                     : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -58,7 +58,7 @@ export const Scene08Exams: React.FC = () => {
                 <h4 className="text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                   Tanvi Kulkarni
                 </h4>
-                <div className="text-xs font-serif italic text-[#586274] mt-0.5">
+                <div className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1] mt-0.5">
                   Roll No: 2026-CBSE-4029 • Hall 3, Desk 42
                 </div>
               </div>

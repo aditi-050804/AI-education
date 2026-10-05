@@ -78,7 +78,7 @@ export const Scene03Transformation: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-3">
             One campus. One intelligent system.
           </h2>
-          <p className="text-sm font-serif italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="text-sm font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Watch how heritage classroom operations transform into AI-Education.
           </p>
 
@@ -88,7 +88,7 @@ export const Scene03Transformation: React.FC = () => {
               <button
                 key={index}
                 onClick={() => setActiveStep(index)}
-                className={`px-4 py-2 rounded-full text-xs font-serif italic transition-all duration-300 border ${
+                className={`px-4 py-2 rounded-full text-xs font-serif font-semibold transition-all duration-300 border ${
                   activeStep === index
                     ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0] shadow-md scale-105'
                     : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] dark:text-[#9DA9BE] border-[#C5A059]/30 hover:border-[#C5A059]'
@@ -117,13 +117,13 @@ export const Scene03Transformation: React.FC = () => {
                   <span className="text-[10px] font-mono uppercase tracking-[0.2em] px-2.5 py-1 rounded bg-[#EAE0CE] dark:bg-[#162138] text-[#8C6B28] dark:text-[#D4AF37]">
                     The Old World
                   </span>
-                  <span className="font-serif italic text-xs text-[#8C6B28]">Disjointed & Paper</span>
+                  <span className="font-serif font-semibold text-xs text-[#8C6B28]">Disjointed & Paper</span>
                 </div>
 
                 <h3 className="font-serif text-3xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mb-3">
                   {current.oldLabel}
                 </h3>
-                <p className="text-sm font-serif italic text-[#586274] dark:text-[#A7B5CC] leading-relaxed">
+                <p className="text-sm font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed">
                   {current.oldDesc}
                 </p>
               </div>
@@ -149,7 +149,7 @@ export const Scene03Transformation: React.FC = () => {
                 <h3 className="font-serif text-3xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mb-3 flex items-center gap-3">
                   {current.newLabel}
                 </h3>
-                <p className="text-sm font-serif italic text-[#586274] dark:text-[#A7B5CC] leading-relaxed">
+                <p className="text-sm font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed">
                   {current.newDesc}
                 </p>
               </div>
@@ -160,7 +160,7 @@ export const Scene03Transformation: React.FC = () => {
                 </span>
                 <button
                   onClick={() => setActiveStep((prev) => (prev + 1) % transformations.length)}
-                  className="text-xs font-serif italic text-[#8C6B28] dark:text-[#D4AF37] hover:underline flex items-center gap-1"
+                  className="text-xs font-serif font-semibold text-[#8C6B28] dark:text-[#D4AF37] hover:underline flex items-center gap-1"
                 >
                   <span>Next Transformation</span>
                   <ArrowRight className="w-3.5 h-3.5" />

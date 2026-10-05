@@ -18,7 +18,7 @@ export const Scene05SmartTimetable: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             Teacher absent?
           </h2>
-          <p className="font-serif text-2xl sm:text-3xl italic text-[#8C6B28] dark:text-[#D4AF37]">
+          <p className="font-serif text-2xl sm:text-3xl font-semibold text-[#8C6B28] dark:text-[#D4AF37]">
             AI finds the right replacement.
           </p>
 
@@ -26,14 +26,14 @@ export const Scene05SmartTimetable: React.FC = () => {
           <div className="mt-6 flex justify-center gap-3">
             <button
               onClick={() => setIsAbsent(!isAbsent)}
-              className="px-4 py-2 rounded-full border border-[#C5A059] bg-[#FAF6EE] dark:bg-[#0E1729] text-xs font-serif italic text-[#161D2B] dark:text-[#F4ECE0] shadow-sm flex items-center gap-2 hover:bg-[#C5A059] hover:text-white transition-all"
+              className="px-4 py-2 rounded-full border border-[#C5A059] bg-[#FAF6EE] dark:bg-[#0E1729] text-xs font-serif font-semibold text-[#161D2B] dark:text-[#F4ECE0] shadow-sm flex items-center gap-2 hover:bg-[#C5A059] hover:text-white transition-all"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>{isAbsent ? 'Teacher Marked Absent' : 'Simulate Absence'}</span>
             </button>
             <button
               onClick={() => setIsDigital(!isDigital)}
-              className="px-4 py-2 rounded-full border border-[#C5A059] bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] text-xs font-serif italic shadow-sm"
+              className="px-4 py-2 rounded-full border border-[#C5A059] bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] text-xs font-serif font-semibold shadow-sm"
             >
               <span>{isDigital ? 'View Parchment Style' : 'View AI Modern Style'}</span>
             </button>
@@ -69,7 +69,7 @@ export const Scene05SmartTimetable: React.FC = () => {
               <div className="font-serif text-sm font-bold text-rose-900 dark:text-rose-200">
                 Dr. S. Ramanujan Absent
               </div>
-              <p className="text-[11px] font-serif italic text-rose-700 dark:text-rose-300">
+              <p className="text-[11px] font-serif font-semibold text-rose-700 dark:text-rose-300">
                 Medical leave recorded at 07:45 AM
               </p>
             </div>
@@ -92,7 +92,7 @@ export const Scene05SmartTimetable: React.FC = () => {
               <div className="font-serif text-sm font-bold text-teal-900 dark:text-teal-200">
                 Substitute Assigned in 8s
               </div>
-              <p className="text-[11px] font-serif italic text-teal-800 dark:text-teal-300">
+              <p className="text-[11px] font-serif font-semibold text-teal-800 dark:text-teal-300">
                 Dr. V. Trivedi notified via portal push
               </p>
             </div>

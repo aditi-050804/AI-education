@@ -67,7 +67,7 @@ export const Scene15Pricing: React.FC<Scene15PricingProps> = ({ onOpenDemo }) =>
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             Institutional Deployment Plans.
           </h2>
-          <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Plans tailored to your student cohort, campus branches, and compliance requirements.
           </p>
 
@@ -75,7 +75,7 @@ export const Scene15Pricing: React.FC<Scene15PricingProps> = ({ onOpenDemo }) =>
           <div className="mt-8 inline-flex p-1.5 rounded-full border border-[#C5A059]/50 bg-[#FAF6EE] dark:bg-[#0E1729]">
             <button
               onClick={() => setSelectedPlan('starter')}
-              className={`px-5 py-2 rounded-full text-xs font-serif italic transition-all ${
+              className={`px-5 py-2 rounded-full text-xs font-serif font-semibold transition-all ${
                 selectedPlan === 'starter'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] shadow-md'
                   : 'text-[#586274] dark:text-[#9DA9BE]'
@@ -85,7 +85,7 @@ export const Scene15Pricing: React.FC<Scene15PricingProps> = ({ onOpenDemo }) =>
             </button>
             <button
               onClick={() => setSelectedPlan('growth')}
-              className={`px-5 py-2 rounded-full text-xs font-serif italic transition-all ${
+              className={`px-5 py-2 rounded-full text-xs font-serif font-semibold transition-all ${
                 selectedPlan === 'growth'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] shadow-md'
                   : 'text-[#586274] dark:text-[#9DA9BE]'
@@ -95,7 +95,7 @@ export const Scene15Pricing: React.FC<Scene15PricingProps> = ({ onOpenDemo }) =>
             </button>
             <button
               onClick={() => setSelectedPlan('enterprise')}
-              className={`px-5 py-2 rounded-full text-xs font-serif italic transition-all ${
+              className={`px-5 py-2 rounded-full text-xs font-serif font-semibold transition-all ${
                 selectedPlan === 'enterprise'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] shadow-md'
                   : 'text-[#586274] dark:text-[#9DA9BE]'
@@ -124,13 +124,13 @@ export const Scene15Pricing: React.FC<Scene15PricingProps> = ({ onOpenDemo }) =>
                 <h3 className="text-3xl sm:text-4xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-1">
                   {curr.name}
                 </h3>
-                <p className="text-xs italic text-[#586274] dark:text-[#A7B5CC] mt-1">
+                <p className="text-xs font-semibold text-[#2D3748] dark:text-[#CBD5E1] mt-1">
                   {curr.target}
                 </p>
               </div>
 
               <div className="text-left md:text-right">
-                <div className="text-xl sm:text-2xl font-bold italic text-[#8C6B28] dark:text-[#D4AF37]">
+                <div className="text-xl sm:text-2xl font-bold text-[#8C6B28] dark:text-[#D4AF37]">
                   Talk to us for institutional pricing.
                 </div>
                 <div className="text-[11px] font-mono text-[#586274] mt-0.5">

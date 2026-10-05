@@ -66,7 +66,7 @@ export const Scene13Solutions: React.FC<Scene13SolutionsProps> = ({ onOpenDemo }
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             Built for every kind of institution.
           </h2>
-          <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Select an educational environment to see its tailored operational architecture.
           </p>
 
@@ -76,7 +76,7 @@ export const Scene13Solutions: React.FC<Scene13SolutionsProps> = ({ onOpenDemo }
               <button
                 key={inst.id}
                 onClick={() => setSelectedInst(inst.id)}
-                className={`px-4 py-2 rounded-full text-xs font-serif italic border transition-all ${
+                className={`px-4 py-2 rounded-full text-xs font-serif font-semibold border transition-all ${
                   selectedInst === inst.id
                     ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#C5A059] shadow-md scale-105'
                     : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30 hover:border-[#C5A059]'
@@ -110,7 +110,7 @@ export const Scene13Solutions: React.FC<Scene13SolutionsProps> = ({ onOpenDemo }
 
               <button
                 onClick={onOpenDemo}
-                className="px-6 py-2.5 rounded-full border border-[#C5A059] bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] text-xs font-serif italic font-bold hover:bg-[#C5A059] hover:text-white transition-colors flex items-center gap-2"
+                className="px-6 py-2.5 rounded-full border border-[#C5A059] bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] text-xs font-serif font-bold hover:bg-[#C5A059] hover:text-white transition-colors flex items-center gap-2"
               >
                 <span>Book {current.title} Demo</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -118,7 +118,7 @@ export const Scene13Solutions: React.FC<Scene13SolutionsProps> = ({ onOpenDemo }
             </div>
 
             <div className="max-w-2xl font-serif">
-              <p className="text-2xl sm:text-3xl italic text-[#8C6B28] dark:text-[#D4AF37] mb-4">
+              <p className="text-2xl sm:text-3xl font-semibold text-[#8C6B28] dark:text-[#D4AF37] mb-4">
                 “{current.tagline}”
               </p>
               <p className="text-base text-[#586274] dark:text-[#A7B5CC] leading-relaxed">

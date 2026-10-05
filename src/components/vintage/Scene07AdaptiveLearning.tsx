@@ -26,7 +26,7 @@ export const Scene07AdaptiveLearning: React.FC = () => {
         <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-3">
           Learning that adapts to every student.
         </h2>
-        <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC] max-w-xl mx-auto mb-12">
+        <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1] max-w-xl mx-auto mb-12">
           Question → Answer → Understanding → Next Question. Difficulty calibrates organically.
         </p>
 

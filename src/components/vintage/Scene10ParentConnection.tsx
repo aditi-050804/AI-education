@@ -36,7 +36,7 @@ export const Scene10ParentConnection: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             Parents stay connected.
           </h2>
-          <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Physical school circulars evolve into instant multi-child attendance and bus telemetry.
           </p>
 
@@ -44,7 +44,7 @@ export const Scene10ParentConnection: React.FC = () => {
           <div className="mt-6 flex justify-center gap-3">
             <button
               onClick={() => setSelectedChild('aarav')}
-              className={`px-4 py-1.5 rounded-full text-xs font-serif italic border transition-all ${
+              className={`px-4 py-1.5 rounded-full text-xs font-serif font-semibold border transition-all ${
                 selectedChild === 'aarav'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0]'
                   : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -54,7 +54,7 @@ export const Scene10ParentConnection: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedChild('diya')}
-              className={`px-4 py-1.5 rounded-full text-xs font-serif italic border transition-all ${
+              className={`px-4 py-1.5 rounded-full text-xs font-serif font-semibold border transition-all ${
                 selectedChild === 'diya'
                   ? 'bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] border-[#161D2B] dark:border-[#F4ECE0]'
                   : 'bg-[#FAF6EE] dark:bg-[#0E1729] text-[#586274] border-[#C5A059]/30'
@@ -77,7 +77,7 @@ export const Scene10ParentConnection: React.FC = () => {
               <h4 className="text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
                 “Dear Parent, Please find enclosed...”
               </h4>
-              <p className="text-xs italic text-[#586274] dark:text-[#A7B5CC] leading-relaxed">
+              <p className="text-xs font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed">
                 Lost in student backpacks, delivered days late, requiring physical paper slips returned with handwritten signatures.
               </p>
             </div>
@@ -99,7 +99,7 @@ export const Scene10ParentConnection: React.FC = () => {
                   <span>{current.name}</span>
                   <span className="text-teal-600 dark:text-teal-400">{current.attendance}</span>
                 </div>
-                <div className="text-[#586274] dark:text-[#A7B5CC] italic">
+                <div className="text-[#2D3748] dark:text-[#CBD5E1] font-semibold">
                   {current.alert}
                 </div>
                 <div className="pt-2 text-[10px] font-mono text-[#8C6B28] dark:text-[#C5A059] flex items-center justify-between">

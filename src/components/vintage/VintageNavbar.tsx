@@ -100,7 +100,7 @@ export const VintageNavbar: React.FC<VintageNavbarProps> = ({ currentPage, onNav
             <ThemeToggle />
             <button
               onClick={onOpenDemo}
-              className="relative px-5 py-2.5 rounded-full border border-[#C5A059] text-xs font-serif italic font-bold tracking-wide text-[#161D2B] dark:text-[#F4ECE0] bg-[#FAF6EE]/80 dark:bg-[#0E1729]/80 hover:bg-[#C5A059] hover:text-white dark:hover:bg-[#D4AF37] dark:hover:text-black transition-all duration-300 shadow-sm flex items-center gap-2"
+              className="relative px-5 py-2.5 rounded-full border border-[#C5A059] text-xs font-serif font-bold tracking-wide text-[#161D2B] dark:text-[#F4ECE0] bg-[#FAF6EE]/80 dark:bg-[#0E1729]/80 hover:bg-[#C5A059] hover:text-white dark:hover:bg-[#D4AF37] dark:hover:text-black transition-all duration-300 shadow-sm flex items-center gap-2"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#38BDF8]" />
               <span>Get Started</span>
@@ -138,7 +138,7 @@ export const VintageNavbar: React.FC<VintageNavbarProps> = ({ currentPage, onNav
                   onClick={() => handleNavClick(item.id)}
                   className={`text-left font-serif text-xl py-2 px-3 rounded-lg ${
                     currentPage === item.id
-                      ? 'text-[#C5A059] italic font-bold bg-[#FAF6EE] dark:bg-[#111A2E]'
+                      ? 'text-[#C5A059] font-bold bg-[#FAF6EE] dark:bg-[#111A2E]'
                       : 'text-[#161D2B] dark:text-[#F4ECE0]'
                   }`}
                 >
@@ -152,7 +152,7 @@ export const VintageNavbar: React.FC<VintageNavbarProps> = ({ currentPage, onNav
                     setMobileMenuOpen(false);
                     onOpenDemo();
                   }}
-                  className="w-full py-3 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-sm font-bold italic"
+                  className="w-full py-3 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-sm font-bold"
                 >
                   Get Started
                 </button>

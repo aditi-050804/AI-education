@@ -35,7 +35,7 @@ export const Scene16FinalCTA: React.FC<Scene16FinalCTAProps> = ({ onOpenDemo, on
           Build the intelligent campus.
         </h2>
 
-        <p className="font-serif text-lg sm:text-xl italic text-[#586274] dark:text-[#A7B5CC] max-w-xl mx-auto leading-relaxed">
+        <p className="font-serif text-lg sm:text-xl font-semibold text-[#2D3748] dark:text-[#CBD5E1] max-w-xl mx-auto leading-relaxed">
           From timetable to Tally. From classroom to AI learning. One unified operating system for your entire institution.
         </p>
 
@@ -43,10 +43,10 @@ export const Scene16FinalCTA: React.FC<Scene16FinalCTAProps> = ({ onOpenDemo, on
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={onOpenDemo}
-            className="w-full sm:w-auto px-9 py-4 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-base font-bold italic tracking-wide hover:bg-[#C5A059] hover:text-white transition-all duration-300 shadow-xl flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto px-9 py-4 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-base font-bold tracking-wide hover:bg-[#C5A059] hover:text-white transition-all duration-300 shadow-xl flex items-center justify-center gap-2 group"
           >
             <Sparkles className="w-4 h-4 text-[#38BDF8]" />
-            <span>Book a Demo</span>
+            <span>Get Started</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
 
@@ -55,7 +55,7 @@ export const Scene16FinalCTA: React.FC<Scene16FinalCTAProps> = ({ onOpenDemo, on
               onNavigate('features');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-8 py-4 rounded-full border border-[#C5A059]/60 hover:border-[#C5A059] text-[#161D2B] dark:text-[#F4ECE0] font-serif text-base italic hover:bg-[#FAF6EE] dark:hover:bg-[#0E1729] transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 rounded-full border border-[#C5A059]/60 hover:border-[#C5A059] text-[#161D2B] dark:text-[#F4ECE0] font-serif text-base font-semibold hover:bg-[#FAF6EE] dark:hover:bg-[#0E1729] transition-all flex items-center justify-center gap-2"
           >
             <BookOpen className="w-4 h-4 text-[#C5A059]" />
             <span>Explore Features</span>

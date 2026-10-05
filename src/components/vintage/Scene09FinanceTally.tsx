@@ -28,14 +28,14 @@ export const Scene09FinanceTally: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
             Finance that stays in sync.
           </h2>
-          <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Student fee payments flow automatically from parent payment into TallyPrime ledgers.
           </p>
 
           <button
             onClick={triggerSync}
             disabled={animating}
-            className="mt-6 px-5 py-2.5 rounded-full border border-[#C5A059] bg-[#FAF6EE] dark:bg-[#0E1729] text-xs font-serif italic text-[#161D2B] dark:text-[#F4ECE0] shadow-sm flex items-center gap-2 mx-auto hover:bg-[#C5A059] hover:text-white transition-all disabled:opacity-50"
+            className="mt-6 px-5 py-2.5 rounded-full border border-[#C5A059] bg-[#FAF6EE] dark:bg-[#0E1729] text-xs font-serif font-semibold text-[#161D2B] dark:text-[#F4ECE0] shadow-sm flex items-center gap-2 mx-auto hover:bg-[#C5A059] hover:text-white transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${animating ? 'animate-spin' : ''}`} />
             <span>Simulate Real-time Tally Ingestion</span>
@@ -58,7 +58,7 @@ export const Scene09FinanceTally: React.FC = () => {
               <h4 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                 Student Fee Payment
               </h4>
-              <p className="text-xs font-serif italic text-[#586274] dark:text-[#A7B5CC]">
+              <p className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
                 UPI, Card or Cheque processed at bursar portal.
               </p>
               <div className="font-mono text-xs text-[#8C6B28] pt-2">
@@ -78,7 +78,7 @@ export const Scene09FinanceTally: React.FC = () => {
               <h4 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                 AI-Education Engine
               </h4>
-              <p className="text-xs font-serif italic text-[#586274] dark:text-[#A7B5CC]">
+              <p className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
                 Splits tuition, lab, library & GST automatically.
               </p>
               <div className="font-mono text-xs text-[#0284C7] dark:text-[#38BDF8] pt-2">
@@ -98,7 +98,7 @@ export const Scene09FinanceTally: React.FC = () => {
               <h4 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                 Tally ERP 9 / Prime
               </h4>
-              <p className="text-xs font-serif italic text-[#586274] dark:text-[#A7B5CC]">
+              <p className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
                 Direct XML injection into institutional books.
               </p>
               <div className="font-mono text-xs text-teal-600 dark:text-teal-400 font-semibold pt-2 flex items-center justify-center gap-1">

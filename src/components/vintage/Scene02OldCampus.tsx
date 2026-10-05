@@ -19,7 +19,7 @@ export const Scene02OldCampus: React.FC = () => {
           <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-3">
             Education shouldn't depend on disconnected systems.
           </h2>
-          <p className="text-sm font-serif italic text-[#586274] dark:text-[#A7B5CC]">
+          <p className="text-sm font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
             Manual registers, paper timetables, ringing desk phones, and lost files.
           </p>
         </div>
@@ -46,7 +46,7 @@ export const Scene02OldCampus: React.FC = () => {
                 <h3 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                   The Paper Timetable
                 </h3>
-                <p className="text-xs font-serif italic text-[#586274] dark:text-[#A7B5CC] mt-1">
+                <p className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1] mt-1">
                   Faculty absent. Morning period disrupted across three sections.
                 </p>
               </div>
@@ -72,7 +72,7 @@ export const Scene02OldCampus: React.FC = () => {
                 <h3 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                   Parent Enquiries
                 </h3>
-                <p className="text-xs font-serif italic text-[#586274] dark:text-[#A7B5CC] mt-1">
+                <p className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1] mt-1">
                   120 parents calling for attendance updates and term fee receipts.
                 </p>
               </div>
@@ -88,7 +88,7 @@ export const Scene02OldCampus: React.FC = () => {
                   <span>REGISTER #14</span>
                   <FileText className="w-4 h-4" />
                 </div>
-                <div className="text-left font-serif italic text-xs text-[#161D2B] dark:text-[#F4ECE0]">
+                <div className="text-left font-serif font-semibold text-xs text-[#161D2B] dark:text-[#F4ECE0]">
                   Manual Marks Entry & Attendance Ledgers
                 </div>
                 <div className="text-[9px] font-mono text-rose-600 dark:text-rose-400 font-semibold">
@@ -99,7 +99,7 @@ export const Scene02OldCampus: React.FC = () => {
                 <h3 className="font-serif text-xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
                   Physical Ledgers
                 </h3>
-                <p className="text-xs font-serif italic text-[#586274] dark:text-[#A7B5CC] mt-1">
+                <p className="text-xs font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1] mt-1">
                   Double manual entries required between college books and bank receipts.
                 </p>
               </div>
@@ -108,7 +108,7 @@ export const Scene02OldCampus: React.FC = () => {
           </div>
 
           {/* Bottom Stamp */}
-          <div className="mt-12 pt-6 border-t border-[#C5A059]/20 flex items-center justify-between text-xs font-serif italic text-[#8C6B28] dark:text-[#C5A059]">
+          <div className="mt-12 pt-6 border-t border-[#C5A059]/20 flex items-center justify-between text-xs font-serif font-semibold text-[#8C6B28] dark:text-[#C5A059]">
             <span>Fragile records • Human clerical error • Siloed departments</span>
             <span className="font-mono text-[10px] uppercase tracking-wider text-[#38BDF8]">
               Ready for Intelligent Modernization →

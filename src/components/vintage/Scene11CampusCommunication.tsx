@@ -14,7 +14,7 @@ export const Scene11CampusCommunication: React.FC = () => {
         <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
           Every conversation. One campus.
         </h2>
-        <p className="font-serif text-lg italic text-[#586274] dark:text-[#A7B5CC] max-w-xl mx-auto mb-12">
+        <p className="font-serif text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1] max-w-xl mx-auto mb-12">
           Hierarchical channels link Principal, Department, Teacher, Student, and Parent. Unread notices compress into an executive AI summary.
         </p>
 
@@ -65,7 +65,7 @@ export const Scene11CampusCommunication: React.FC = () => {
               </span>
               <span>Compiled at 05:00 PM</span>
             </div>
-            <p className="text-sm italic text-[#161D2B] dark:text-[#F4ECE0] leading-relaxed">
+            <p className="text-sm font-semibold text-[#161D2B] dark:text-[#F4ECE0] leading-relaxed">
               “142 classes conducted with zero timetable clashes. Founder’s Day rehearsal finalized for Thursday at 09:00 AM. 98.2% fee reconciliation completed with Tally ledger.”
             </p>
           </div>

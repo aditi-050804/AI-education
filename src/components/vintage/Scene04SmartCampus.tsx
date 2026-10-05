@@ -34,7 +34,7 @@ export const Scene04SmartCampus: React.FC = () => {
         <h2 className="font-serif text-4xl sm:text-6xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-2 mb-2">
           Everything connected.
         </h2>
-        <p className="text-sm font-serif italic text-[#586274] dark:text-[#A7B5CC]">
+        <p className="text-sm font-serif font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
           Hover or tap any architectural wing to trace its live institutional data flow.
         </p>
       </div>
@@ -78,7 +78,7 @@ export const Scene04SmartCampus: React.FC = () => {
         })}
 
         {/* Central Intelligence Pulse in Scene */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center text-xs font-serif italic text-[#8C6B28] dark:text-[#C5A059] z-20">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center text-xs font-serif font-semibold text-[#8C6B28] dark:text-[#C5A059] z-20">
           ✦ Zero data silos across academics, bursar, examinations, and faculties ✦
         </div>
 
