@@ -8,7 +8,7 @@ export const Scene02OldCampus: React.FC = () => {
   const [isPhoneRinging, setIsPhoneRinging] = useState(true);
 
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center px-6 py-24 bg-[#F4ECE0] dark:bg-[#070D18] border-t border-[#C5A059]/20 engraving-lines transition-colors duration-500">
+    <section className="relative min-h-screen w-full flex items-center justify-center px-6 py-24 bg-[#F8F4EB] dark:bg-[#060B14] border-t border-[#C5A059]/20 parchment-grain transition-colors duration-500">
       <div className="max-w-6xl mx-auto w-full">
         
         {/* Editorial Heading */}
@@ -27,10 +27,6 @@ export const Scene02OldCampus: React.FC = () => {
         {/* Vintage Classroom Environment Composition (NO CARDS) */}
         <div className="relative w-full rounded-3xl border border-[#C5A059]/40 bg-[#FAF6EE]/90 dark:bg-[#0B1220]/90 p-8 sm:p-12 overflow-hidden shadow-2xl">
           
-          {/* Background Chalkboard Sketch */}
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-4/5 h-48 rounded-xl border-4 border-[#8C6B28]/30 bg-[#243329] dark:bg-[#121B15] opacity-25 pointer-events-none flex items-center justify-center text-white/50 font-serif italic text-2xl">
-            Syllabus: Chapter VII • Section III
-          </div>
 
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-10 items-center">
             
