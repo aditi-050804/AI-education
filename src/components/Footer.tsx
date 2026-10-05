@@ -36,20 +36,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenDemo }) => {
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-xs uppercase tracking-wider font-mono text-[#586274] dark:text-[#A7B5CC]">
+            <button onClick={() => onNavigate('home')} className="hover:text-[#161D2B] dark:hover:text-[#F4ECE0]">
+              Home
+            </button>
             <button onClick={() => onNavigate('features')} className="hover:text-[#161D2B] dark:hover:text-[#F4ECE0]">
-              Capabilities
+              Features
             </button>
             <button onClick={() => onNavigate('solutions')} className="hover:text-[#161D2B] dark:hover:text-[#F4ECE0]">
-              Institutions
+              Solutions
             </button>
             <button onClick={() => onNavigate('pricing')} className="hover:text-[#161D2B] dark:hover:text-[#F4ECE0]">
-              Admissions
+              Pricing
             </button>
             <button onClick={() => onNavigate('security')} className="hover:text-[#161D2B] dark:hover:text-[#F4ECE0]">
-              Security Vault
+              Security
             </button>
             <button onClick={() => onNavigate('contact')} className="hover:text-[#161D2B] dark:hover:text-[#F4ECE0]">
-              Registry
+              Contact
             </button>
           </div>
 

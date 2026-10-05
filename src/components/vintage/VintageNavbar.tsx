@@ -11,12 +11,12 @@ interface VintageNavbarProps {
 }
 
 const navItems: NavItem[] = [
-  { id: 'home', label: 'Campus' },
-  { id: 'features', label: 'Capabilities' },
-  { id: 'solutions', label: 'Institutions' },
-  { id: 'pricing', label: 'Admissions' },
-  { id: 'security', label: 'Archival Vault' },
-  { id: 'contact', label: 'Inquire' },
+  { id: 'home', label: 'Home' },
+  { id: 'features', label: 'Features' },
+  { id: 'solutions', label: 'Solutions' },
+  { id: 'pricing', label: 'Pricing' },
+  { id: 'security', label: 'Security' },
+  { id: 'contact', label: 'Contact' },
 ];
 
 export const VintageNavbar: React.FC<VintageNavbarProps> = ({ currentPage, onNavigate, onOpenDemo }) => {
