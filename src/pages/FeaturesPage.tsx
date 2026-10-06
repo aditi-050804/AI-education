@@ -1,25 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
 import {
   Sparkles,
   ArrowRight,
-  RefreshCw,
   Bookmark,
-  Check,
   CheckCircle2,
+  QrCode,
   FileText,
-  Clock,
-  ShieldCheck,
-  Phone,
-  Send,
+  Scan,
+  Download,
+  CreditCard,
   Building2,
+  Calendar,
+  Check,
+  AlertCircle,
+  FileCheck,
+  Printer,
+  ShieldCheck,
+  Clock,
+  Send,
+  UserCheck,
   GraduationCap,
   Scale,
-  Brain,
-  RotateCcw,
-  Sliders,
-  Play,
-  Award
+  Award,
+  ChevronRight,
+  TrendingUp,
+  Search,
+  Bell,
+  CheckCircle,
+  User,
+  Users,
+  Eye,
+  Layers,
+  Zap,
 } from 'lucide-react';
 import type { PageId } from '../types';
 
@@ -27,6 +40,178 @@ interface FeaturesPageProps {
   onOpenDemo: () => void;
   onNavigate: (page: PageId) => void;
 }
+
+interface StepItem {
+  id: string;
+  label: string;
+}
+
+interface InteractiveChapterProps {
+  id: string;
+  num: string;
+  title: string;
+  headline: string;
+  description: string;
+  continuityLabel?: string;
+  steps: StepItem[];
+  minHeightClass?: string;
+  renderStep: (currentStep: number) => React.ReactNode;
+}
+
+// -----------------------------------------------------------------------------
+// SEQUENTIAL SCROLL CHAPTER COMPONENT
+// Ensures steps advance sequentially (1 -> 2 -> 3 -> 4) without skipping.
+// When scrolling down, it steps forward. When scrolling up, it reverses.
+// -----------------------------------------------------------------------------
+const InteractiveChapter: React.FC<InteractiveChapterProps> = ({
+  id,
+  num,
+  title,
+  headline,
+  description,
+  continuityLabel,
+  steps,
+  minHeightClass = 'min-h-[220vh]',
+  renderStep,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Raw scroll progress target
+  const [targetStep, setTargetStep] = useState(0);
+
+  // Displayed step with sequential transition latch (prevents 1 -> 3 or 1 -> 4 jumps)
+  const [displayStep, setDisplayStep] = useState(0);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    const stepCount = steps.length;
+    // Buffer margins at start and end so step 1 and step last stay comfortably pinned
+    const progress = Math.max(0, Math.min(0.999, (latest - 0.05) / 0.90));
+    const calculatedStep = Math.min(stepCount - 1, Math.max(0, Math.floor(progress * stepCount)));
+    setTargetStep(calculatedStep);
+  });
+
+  // SEQUENTIAL LATCH:
+  // If targetStep is ahead or behind by more than 1 step, step through sequentially (1 -> 2 -> 3 -> 4)
+  // so the user's eyes clearly see every single stage without jumping!
+  useEffect(() => {
+    if (displayStep === targetStep) return;
+
+    const timer = setTimeout(() => {
+      setDisplayStep((prev) => {
+        if (prev < targetStep) return prev + 1;
+        if (prev > targetStep) return prev - 1;
+        return prev;
+      });
+    }, 180);
+
+    return () => clearTimeout(timer);
+  }, [targetStep, displayStep]);
+
+  const handleManualClick = (stepIdx: number) => {
+    setTargetStep(stepIdx);
+    setDisplayStep(stepIdx);
+  };
+
+  return (
+    <div
+      id={id}
+      ref={containerRef}
+      className={`relative ${minHeightClass} scroll-mt-24`}
+    >
+      <div className="sticky top-24 sm:top-28 space-y-4 pt-2">
+        
+        {/* Editorial Section Header */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]">
+              {num} / {title}
+            </span>
+            <span className="text-[10px] font-mono text-[#5A6578] dark:text-[#9DA9BE]">
+              Stage 0{displayStep + 1} of 0{steps.length} • Scroll or Click
+            </span>
+          </div>
+
+          <h2 className="font-editorial text-3xl sm:text-5xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight">
+            {headline}
+          </h2>
+
+          <p className="text-sm sm:text-base text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl">
+            {description}
+          </p>
+        </div>
+
+        {/* Step Navigation Tabs & Progress Line */}
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none font-mono text-xs">
+            {steps.map((st, idx) => {
+              const isCurrent = displayStep === idx;
+              const isPast = displayStep > idx;
+
+              return (
+                <button
+                  key={st.id}
+                  onClick={() => handleManualClick(idx)}
+                  className={`px-3 py-1 rounded-full border transition-all text-xs flex items-center gap-1.5 shrink-0 ${
+                    isCurrent
+                      ? 'border-[#C87D32] bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold shadow-sm'
+                      : isPast
+                      ? 'border-emerald-600/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5'
+                      : 'border-[#C87D32]/25 text-[#5A6578] hover:text-[#121926] dark:hover:text-[#F5EFE6]'
+                  }`}
+                >
+                  <span className="text-[10px] opacity-70">0{idx + 1}</span>
+                  <span>{st.label}</span>
+                  {isPast && <span className="text-[9px] font-bold">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Micro Progress Bar filling with the current step */}
+          <div className="h-[2px] w-full bg-[#C87D32]/15 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#C87D32] transition-all duration-300"
+              style={{ width: `${((displayStep + 1) / steps.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Interactive Living Canvas Card with Smooth Morphing */}
+        <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-5 sm:p-6 shadow-sm min-h-[290px] flex flex-col justify-center font-serif">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={displayStep}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="w-full"
+            >
+              {renderStep(displayStep)}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Continuity Thread */}
+        {continuityLabel && (
+          <div className="pt-2 pb-1 flex items-center gap-3 opacity-30 select-none">
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C87D32]/40 to-[#C87D32]/20" />
+            <span className="font-mono text-[9px] uppercase tracking-widest text-[#C87D32]">
+              {continuityLabel}
+            </span>
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-[#C87D32]/20 via-[#C87D32]/40 to-transparent" />
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
 
 export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNavigate }) => {
   const [activeChapter, setActiveChapter] = useState<number>(0);
@@ -46,7 +231,7 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
     { num: '10', title: 'Law Education', short: 'Law', id: 'chapter-10' },
   ];
 
-  // Scroll spy using IntersectionObserver
+  // Scroll spy using IntersectionObserver to detect which chapter is in view
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
 
@@ -63,7 +248,7 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
           },
           {
             root: null,
-            rootMargin: '-35% 0px -40% 0px',
+            rootMargin: '-20% 0px -40% 0px',
             threshold: 0.1,
           }
         );
@@ -77,7 +262,6 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
     };
   }, []);
 
-  // Smooth scroll handler
   const scrollToChapter = (id: string, index: number) => {
     setActiveChapter(index);
     const element = document.getElementById(id);
@@ -91,81 +275,33 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // INTERACTIVE STATES FOR THE 10 CHAPTERS
-  // ---------------------------------------------------------------------------
-
-  // Chapter 01: Timetable Proxy Sequence
-  const [timetableState, setTimetableState] = useState<'normal' | 'absent' | 'evaluating' | 'assigned'>('assigned');
-  
-  // Chapter 02: AI Study Buddy Subject
-  const [studySubject, setStudySubject] = useState<'biology' | 'law' | 'physics'>('biology');
-
-  // Chapter 03: Assessments Pipeline Step
-  const [assessStep, setAssessStep] = useState<number>(3); // 1: Paper, 2: Student Answer, 3: AI Eval, 4: Sealed Report
-
-  // Chapter 04: Admissions Journey Step
-  const [admissionsStep, setAdmissionsStep] = useState<number>(4);
-
-  // Chapter 05: Finance & Tally Sync State
-  const [isSyncingLedger, setIsSyncingLedger] = useState<boolean>(false);
-
-  // Chapter 06: Campus Communication Active Filter
-  const [commSender, setCommSender] = useState<'all' | 'principal' | 'teacher' | 'parent'>('all');
-
-  // Chapter 07: Parent Portal Notification Type
-  const [parentTab, setParentTab] = useState<'attendance' | 'fee' | 'notice'>('attendance');
-
-  // Chapter 08: Adaptive Learning Branch
-  const [adaptiveBranch, setAdaptiveBranch] = useState<'correct' | 'needs_help'>('correct');
-
-  // Chapter 09: Prep Loop Step
-  const [prepLoopStep, setPrepLoopStep] = useState<number>(2);
-
-  // Chapter 10: Law Case Tab
-  const [lawTab, setLawTab] = useState<'basic_structure' | 'due_process' | 'judicial_review'>('basic_structure');
-
-  // Automatic proxy simulation trigger on timer for lively academic demo
-  const triggerProxySimulation = () => {
-    setTimetableState('normal');
-    setTimeout(() => setTimetableState('absent'), 600);
-    setTimeout(() => setTimetableState('evaluating'), 1600);
-    setTimeout(() => setTimetableState('assigned'), 2800);
-  };
-
   return (
     <div
       ref={containerRef}
       className="min-h-screen transition-colors duration-500 font-sans relative selection:bg-[#C87D32] selection:text-white"
     >
-      {/* ========================================================================= */}
-      {/* FAINT BACKGROUND ACADEMIC WATERMARK WORDS (Low Opacity Notebook Layer) */}
-      {/* ========================================================================= */}
-      <div className="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden flex flex-col justify-between py-24 px-8 opacity-[0.025] dark:opacity-[0.035]">
-        <div className="font-editorial text-[9vw] font-bold tracking-widest text-[#121926] dark:text-white leading-none">
+      {/* Background Watermarks */}
+      <div className="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden flex flex-col justify-between py-24 px-8 opacity-[0.02] dark:opacity-[0.03]">
+        <div className="font-editorial text-[8vw] font-bold tracking-widest text-[#121926] dark:text-white leading-none">
           CAMPUS
         </div>
-        <div className="font-editorial text-[8.5vw] font-bold tracking-widest text-right text-[#121926] dark:text-white leading-none">
+        <div className="font-editorial text-[7.5vw] font-bold tracking-widest text-right text-[#121926] dark:text-white leading-none">
           KNOWLEDGE
         </div>
-        <div className="font-editorial text-[9vw] font-bold tracking-widest text-[#121926] dark:text-white leading-none">
+        <div className="font-editorial text-[8vw] font-bold tracking-widest text-[#121926] dark:text-white leading-none">
           CURRICULUM
         </div>
-        <div className="font-editorial text-[8.5vw] font-bold tracking-widest text-right text-[#121926] dark:text-white leading-none">
+        <div className="font-editorial text-[7.5vw] font-bold tracking-widest text-right text-[#121926] dark:text-white leading-none">
           INTELLIGENCE
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 1. HERO SECTION: Minimal Editorial (NO HORIZONTAL PILLS) */}
-      {/* ========================================================================= */}
-      <section className="pt-32 pb-24 max-w-4xl mx-auto px-6 sm:px-10 text-center space-y-4 relative z-10">
-        
-        {/* Small Eyebrow */}
+      {/* Hero Section */}
+      <section className="pt-24 pb-8 max-w-4xl mx-auto px-6 text-center space-y-3 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="inline-flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#5A6578] dark:text-[#9DA9BE]"
         >
           <span className="w-2 h-2 rounded-full bg-[#C87D32]" />
@@ -174,12 +310,11 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
           </span>
         </motion.div>
 
-        {/* Large Editorial Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="font-editorial text-5xl sm:text-7xl lg:text-[5.5rem] font-bold text-[#121926] dark:text-[#F5EFE6] leading-[1.06] tracking-tight"
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="font-editorial text-4xl sm:text-6xl lg:text-7xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-[1.08] tracking-tight"
         >
           Everything your campus needs, <br />
           <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
@@ -187,131 +322,29 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
           </span>
         </motion.h1>
 
-        {/* 1-2 Line Supporting Text */}
         <motion.p
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-lg sm:text-xl text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl mx-auto"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl mx-auto"
         >
           10 connected capabilities for modern education.
         </motion.p>
 
-        {/* Subtle scroll down indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.7 }}
-          className="pt-6 flex justify-center"
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="pt-2 flex justify-center"
         >
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#C87D32] dark:text-[#E5A955] flex items-center gap-1.5 opacity-80">
-            <span>Scroll through the 10 chapters</span>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[#C87D32] dark:text-[#E5A955] flex items-center gap-1.5 opacity-80">
+            <span>Scroll down through each chapter sequentially</span>
             <span className="animate-bounce">↓</span>
           </span>
         </motion.div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 2. STICKY VERTICAL CHAPTER RAIL (DESKTOP: Fixed on Left Notebook Canvas) */}
-      {/* Strictly NO card, NO background box, NO shadow, NO border container */}
-      {/* Sits directly on the notebook paper alongside the red guideline */}
-      {/* ========================================================================= */}
-      <nav
-        aria-label="Chapter Index"
-        className="hidden lg:block fixed left-4 xl:left-8 top-32 z-30 w-44 pointer-events-auto select-none"
-      >
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="relative pl-5 py-2"
-        >
-          {/* Base Thin Background Line (Top to bottom) */}
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="absolute left-[6.5px] top-2 bottom-2 w-[1px] bg-[#C87D32]/25 dark:bg-[#C87D32]/20 origin-top"
-          />
-
-          {/* Dynamic Orange Scroll Progress Line filling down to the active chapter */}
-          <div
-            className="absolute left-[6.5px] top-2 w-[1.5px] bg-[#C87D32] transition-all duration-400 origin-top"
-            style={{
-              height: `${(activeChapter / (chapters.length - 1)) * 96}%`,
-            }}
-          />
-
-          {/* Chapters List with staggered intro animation */}
-          <div className="space-y-4">
-            {chapters.map((chap, idx) => {
-              const isActive = activeChapter === idx;
-              const isPast = activeChapter > idx;
-
-              return (
-                <motion.button
-                  key={chap.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 + idx * 0.05 }}
-                  onClick={() => scrollToChapter(chap.id, idx)}
-                  className="group relative flex items-center gap-3 text-left w-full focus:outline-none transition-all duration-300"
-                >
-                  {/* Timeline Dot Node */}
-                  <div
-                    className={`absolute -left-[18.5px] rounded-full transition-all duration-300 flex items-center justify-center ${
-                      isActive
-                        ? 'w-3 h-3 bg-[#C87D32] ring-4 ring-[#FAF5EB] dark:ring-[#070B13] scale-110 shadow-sm'
-                        : isPast
-                        ? 'w-2 h-2 bg-[#C87D32]/80 ring-2 ring-[#FAF5EB] dark:ring-[#070B13]'
-                        : 'w-2 h-2 border border-[#C87D32]/40 bg-[#FAF5EB] dark:bg-[#070B13]'
-                    }`}
-                  >
-                    {isPast && (
-                      <Check className="w-1.5 h-1.5 text-white stroke-[3]" />
-                    )}
-                  </div>
-
-                  {/* Chapter Label and Number */}
-                  <div className="flex flex-col transition-all duration-300 pl-1">
-                    <span
-                      className={`font-mono text-[10px] tracking-wider transition-all duration-200 ${
-                        isActive
-                          ? 'text-[#C87D32] dark:text-[#E5A955] font-bold translate-x-1'
-                          : 'text-[#5A6578]/70 dark:text-[#9DA9BE]/50 group-hover:text-[#121926]'
-                      }`}
-                    >
-                      {chap.num}
-                    </span>
-                    <span
-                      className={`text-xs font-serif leading-tight transition-all duration-200 ${
-                        isActive
-                          ? 'text-[#121926] dark:text-[#F5EFE6] font-bold translate-x-1'
-                          : 'text-[#5A6578]/75 dark:text-[#9DA9BE]/55 group-hover:text-[#121926] dark:group-hover:text-[#F5EFE6]'
-                      }`}
-                    >
-                      {chap.short}
-                    </span>
-                  </div>
-
-                  {/* Subtle active underline indicator */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeRailUnderline"
-                      className="absolute bottom-0 left-4 right-6 h-[1px] bg-[#C87D32]/50"
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-      </nav>
-
-      {/* ========================================================================= */}
-      {/* 3. MOBILE STICKY CHAPTER BADGE (Top bar for mobile & tablet) */}
-      {/* ========================================================================= */}
+      {/* Mobile Top Chapter Indicator */}
       <div className="lg:hidden sticky top-16 z-30 py-2.5 px-6 bg-[#FAF5EB]/95 dark:bg-[#070B13]/95 backdrop-blur-md border-b border-[#C87D32]/15">
         <div className="max-w-md mx-auto flex items-center justify-between text-xs font-mono">
           <div className="flex items-center gap-2">
@@ -343,1217 +376,1601 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenDemo, onNaviga
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 4. CHAPTER STREAM: Living Directly on the Ruled Notebook Canvas */}
-      {/* Minimal Copy: 1 small label, 1 big headline, 1 short description */}
-      {/* LARGE ANIMATED PRODUCT SCENE directly on the ruled lines */}
-      {/* ========================================================================= */}
-      <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:pl-48 xl:pl-56 space-y-40 pb-36 relative z-10">
-        
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 01 — ACADEMIC OPERATIONS */}
-        {/* Timetable Simulation: Absent -> AI matching -> Proxy Assigned */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-01" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
+      {/* Two Column Layout: Left Sticky Rail + Main Chapters */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-4">
+        <div className="flex gap-8 lg:gap-10 xl:gap-14 items-start relative">
           
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              01 / ACADEMIC OPERATIONS
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Keep every class moving.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Smart scheduling, teacher availability and automatic proxy matching.
-            </motion.p>
-          </div>
-
-          {/* Animated Timetable Demonstration directly on notebook canvas */}
-          <div className="space-y-4 pt-2 font-serif">
-            
-            <div className="flex items-center justify-between pb-2 border-b border-[#C87D32]/20 text-xs font-mono text-[#5A6578] dark:text-[#9DA9BE]">
-              <span>Schedule • Availability • Proxy Matching</span>
-              <button
-                onClick={triggerProxySimulation}
-                className="px-3.5 py-1.5 rounded-full border border-[#C87D32] bg-[#FAF5EB] dark:bg-[#111A2E] text-xs font-editorial italic text-[#121926] dark:text-[#F5EFE6] hover:bg-[#C87D32] hover:text-white transition-all flex items-center gap-1.5 shadow-sm"
-              >
-                <RefreshCw className={`w-3 h-3 text-[#C87D32] ${timetableState === 'evaluating' ? 'animate-spin' : ''}`} />
-                <span>Re-simulate Proxy Match</span>
-              </button>
-            </div>
-
-            {/* Academic Timetable Grid on Ruled Paper */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              
-              {/* Slot 1: Unchanged Normal Class */}
-              <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB]/80 dark:bg-[#0E1524]/80 text-xs space-y-1.5 relative overflow-hidden">
-                <div className="font-mono text-[10px] text-[#C87D32]">Monday 08:30 • Room 101</div>
-                <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6]">History II</div>
-                <div className="italic text-[#526071] dark:text-[#A6B4C9]">Prof. K. Sen • Assigned</div>
-                <div className="pt-2 text-[10px] font-mono text-emerald-600 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>On Schedule</span>
-                </div>
-              </div>
-
-              {/* Slot 2: Active Simulation Slot */}
-              <div className={`p-4 rounded-xl border transition-all duration-500 text-xs space-y-1.5 relative overflow-hidden ${
-                timetableState === 'assigned'
-                  ? 'border-[#38BDF8] bg-[#38BDF8]/10'
-                  : timetableState === 'evaluating'
-                  ? 'border-amber-500/50 bg-amber-500/10'
-                  : timetableState === 'absent'
-                  ? 'border-rose-400 bg-rose-500/10'
-                  : 'border-[#C87D32]/25 bg-[#FAF5EB]/80 dark:bg-[#0E1524]/80'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-[#C87D32]">Monday 09:15 • Room 204</span>
-                  
-                  {timetableState === 'assigned' && (
-                    <span className="text-[10px] font-mono text-[#0284C7] dark:text-[#38BDF8] font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>PROXY ASSIGNED ✓</span>
-                    </span>
-                  )}
-                  {timetableState === 'evaluating' && (
-                    <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
-                      <RefreshCw className="w-3 h-3 animate-spin" />
-                      <span>EVALUATING FACULTY...</span>
-                    </span>
-                  )}
-                  {timetableState === 'absent' && (
-                    <span className="text-[10px] font-mono text-rose-500 font-bold">
-                      TEACHER UNAVAILABLE
-                    </span>
-                  )}
-                </div>
-
-                <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6]">
-                  Mathematics
-                </div>
-
-                <div className="italic text-[#526071] dark:text-[#A6B4C9] flex items-center justify-between">
-                  <div>
-                    {timetableState === 'assigned' ? (
-                      <span className="font-bold text-[#0284C7] dark:text-[#38BDF8]">Dr. Mehta (Proxy Matched)</span>
-                    ) : timetableState === 'evaluating' ? (
-                      <span className="text-amber-600">Comparing free slots...</span>
-                    ) : (
-                      <span>Teacher: Sharma</span>
-                    )}
-                  </div>
-                  {(timetableState === 'absent' || timetableState === 'assigned' || timetableState === 'evaluating') && (
-                    <span className="line-through text-rose-500 text-[11px]">Sharma Absent</span>
-                  )}
-                </div>
-
-                <div className="pt-2 text-[10px] font-mono text-[#5A6578] dark:text-[#9DA9BE] flex items-center justify-between">
-                  <span>Match factor: 98% syllabus alignment</span>
-                  <span>Room 204</span>
-                </div>
-              </div>
-
-              {/* Slot 3: Unchanged Normal Class */}
-              <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB]/80 dark:bg-[#0E1524]/80 text-xs space-y-1.5 relative overflow-hidden">
-                <div className="font-mono text-[10px] text-[#C87D32]">Monday 10:15 • Room 102</div>
-                <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6]">Physics Lab</div>
-                <div className="italic text-[#526071] dark:text-[#A6B4C9]">Dr. V. Prasad • Assigned</div>
-                <div className="pt-2 text-[10px] font-mono text-emerald-600 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>On Schedule</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Subtle visual connector between Chapter 1 and Chapter 2 */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#C87D32]/40 to-[#38BDF8]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 02 — AI STUDY BUDDY */}
-        {/* Academic Textbook Scene: Question -> AI Answer -> Source Grounding */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-02" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              02 / AI STUDY BUDDY
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Answers grounded in your curriculum.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Direct source citations with chapter, section and exact page grounding.
-            </motion.p>
-          </div>
-
-          {/* Academic Textbook on Notebook Canvas */}
-          <div className="space-y-4 pt-2 font-serif">
-            
-            <div className="flex items-center justify-between pb-2 border-b border-[#C87D32]/20">
-              <span className="text-xs font-mono text-[#C87D32] dark:text-[#E5A955] uppercase">
-                Curriculum-grounded AI
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setStudySubject('biology')}
-                  className={`px-3 py-1 rounded-full text-xs font-editorial italic transition-all ${
-                    studySubject === 'biology' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Biology
-                </button>
-                <button
-                  onClick={() => setStudySubject('law')}
-                  className={`px-3 py-1 rounded-full text-xs font-editorial italic transition-all ${
-                    studySubject === 'law' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Law
-                </button>
-                <button
-                  onClick={() => setStudySubject('physics')}
-                  className={`px-3 py-1 rounded-full text-xs font-editorial italic transition-all ${
-                    studySubject === 'physics' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Physics
-                </button>
-              </div>
-            </div>
-
-            {/* Laid Open Textbook Mockup resting on notebook */}
-            <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-sm">
-              
-              {/* Textbook Header / Spine Indicator */}
-              <div className="flex items-center justify-between text-[11px] font-mono text-[#5A6578] dark:text-[#9DA9BE] pb-3 border-b border-[#C87D32]/15">
-                <span>TEXTBOOK FOLIO • 12TH STANDARD ACADEMIC EDITION</span>
-                <span className="text-[#C87D32]">
-                  {studySubject === 'biology' && 'Chapter 04 • Cellular Energetics • p. 87'}
-                  {studySubject === 'law' && 'Chapter 08 • Constitutional Powers • p. 144'}
-                  {studySubject === 'physics' && 'Chapter 07 • Rotational Dynamics • p. 158'}
-                </span>
-              </div>
-
-              {/* Student Query */}
-              <div className="flex items-start sm:items-center gap-3">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#C87D32]/10 text-[#C87D32] font-bold shrink-0">
-                  QUESTION
-                </span>
-                <div className="font-editorial text-xl sm:text-2xl font-bold text-[#121926] dark:text-[#F5EFE6]">
-                  {studySubject === 'biology' && '“Explain the light-dependent reactions of photosynthesis.”'}
-                  {studySubject === 'law' && '“Explain the doctrine of Basic Structure under Article 368.”'}
-                  {studySubject === 'physics' && '“Derive the relation between torque and angular momentum.”'}
-                </div>
-              </div>
-
-              {/* AI Answer Grounded in Textbook */}
-              <div className="p-5 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10 space-y-3 relative">
-                
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 font-editorial font-bold text-[#121926] dark:text-[#F5EFE6]">
-                    <Sparkles className="w-4 h-4 text-[#38BDF8]" />
-                    <span>AI Study Buddy (Verified Grounding)</span>
-                  </div>
-
-                  <span className="px-3 py-0.5 rounded-full border border-[#38BDF8]/60 text-[11px] font-mono text-[#0284C7] dark:text-[#38BDF8] flex items-center gap-1 font-semibold bg-[#FAF5EB] dark:bg-[#070B13]">
-                    <Bookmark className="w-3 h-3" />
-                    <span>
-                      {studySubject === 'biology' && 'Chapter 04 • Section 02 • Page 87'}
-                      {studySubject === 'law' && 'Chapter 08 • Section 03 • Page 144'}
-                      {studySubject === 'physics' && 'Chapter 07 • Section 05 • Page 158'}
-                    </span>
-                  </span>
-                </div>
-
-                <p className="text-sm italic text-[#121926] dark:text-[#F5EFE6] leading-relaxed">
-                  {studySubject === 'biology' && '“Light reactions occur in the thylakoid membrane where photons excite chlorophyll in Photosystem II. Photolysis of water releases O₂ while electrons flow through cyt-b6f to generate NADPH and a proton gradient powering ATP synthase.”'}
-                  {studySubject === 'law' && '“Affirmed by the 13-judge bench in Kesavananda Bharati (1973), Parliament possesses constituent amending power under Article 368, but cannot alter the fundamental framework or basic features of the Constitution.”'}
-                  {studySubject === 'physics' && '“Net external torque equals the time rate of change of angular momentum: τ_ext = dL/dt. When external torque is zero, system angular momentum is strictly conserved across all inertial frames.”'}
-                </p>
-
-                {/* Animated Connecting Arrow back to Source Citation */}
-                <div className="pt-2 flex items-center gap-2 text-xs font-mono text-[#0284C7] dark:text-[#38BDF8]">
-                  <span>Source lineage:</span>
-                  <span className="font-semibold underline">QUESTION → AI ANSWER → TEXTBOOK SOURCE</span>
-                  <span>✓</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#38BDF8]/40 to-[#C87D32]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 03 — ASSESSMENTS */}
-        {/* Examination Paper Scene: Handwritten marks, AI evaluation & seal */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-03" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              03 / ASSESSMENTS
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Assessment without the busywork.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              From answer sheets to cryptographically sealed report cards.
-            </motion.p>
-          </div>
-
-          {/* Authentic Ruled Examination Paper with Handwritten Annotations */}
-          <div className="space-y-4 pt-2 font-serif">
-            
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none font-mono text-xs">
-              {['Question Paper', 'Student Answers', 'AI Evaluation', 'Sealed Report Card'].map((s, i) => (
-                <button
-                  key={s}
-                  onClick={() => setAssessStep(i + 1)}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    assessStep === i + 1
-                      ? 'border-[#C87D32] bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold'
-                      : 'border-[#C87D32]/25 text-[#5A6578] hover:text-[#121926]'
-                  }`}
-                >
-                  0{i + 1} {s}
-                </button>
-              ))}
-            </div>
-
-            {/* Ruled Exam Sheet */}
-            <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-5">
-              
-              <div className="flex items-center justify-between pb-3 border-b border-[#C87D32]/20 text-xs font-mono">
-                <div>
-                  <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">ANNUAL MID-TERM EVALUATION</span>
-                  <div className="text-[#5A6578] text-[10px]">Candidate Roll #2024-B-14 • Physics Advanced</div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[#C87D32] font-bold">MAX MARKS: 100</span>
-                  <div className="text-[10px] text-emerald-600 font-mono">AI Evaluator #92-VERIFIED</div>
-                </div>
-              </div>
-
-              {/* Problem 01 Answer with Red-Ink Step Marks */}
-              <div className="p-4 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-2 text-xs">
-                <div className="flex items-center justify-between font-mono text-[11px] text-[#5A6578]">
-                  <span>Question 4: Calculate the moment of inertia for a hollow cylinder.</span>
-                  <span className="text-rose-600 dark:text-rose-400 font-bold font-serif text-sm">
-                    +5 / 5 (Full Step Marks)
-                  </span>
-                </div>
-                <p className="italic text-[#121926] dark:text-[#F5EFE6] leading-relaxed">
-                  Student Derivation: I = ∫ r² dm = M·R² for thin shell. Hand-written integral verified step-by-step.
-                </p>
-                <div className="flex items-center gap-3 pt-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
-                  <span>✓ Derivation valid</span>
-                  <span>✓ Units verified (kg·m²)</span>
-                  <span>✓ Formula syntax matched curriculum rubric</span>
-                </div>
-              </div>
-
-              {/* Summary Grade Card Formation */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
-                <div className="p-3.5 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
-                  <div className="font-mono text-[10px] text-[#5A6578]">Subject Breakdown</div>
-                  <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6] mt-0.5">Physics • 94/100</div>
-                  <div className="italic text-[#C87D32] mt-0.5">Grade A+ (Distinction)</div>
-                </div>
-                <div className="p-3.5 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
-                  <div className="font-mono text-[10px] text-[#5A6578]">Batch Ranking</div>
-                  <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6] mt-0.5">Rank 03 / 184</div>
-                  <div className="italic text-emerald-600 mt-0.5">Top 2% percentile in cohort</div>
-                </div>
-                <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/20">
-                  <div className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400">Cryptographic Seal</div>
-                  <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6] mt-0.5">Controller Sealed</div>
-                  <div className="italic text-[#526071] dark:text-[#A6B4C9] mt-0.5">Dispatched to Parent Portal</div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#C87D32]/40 to-[#38BDF8]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 04 — ADMISSIONS & EXAMS */}
-        {/* Single Continuous Animated Line with 8 sequential stages */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-04" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              04 / ADMISSIONS & EXAMS
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              From application to result.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              One continuous verified pipeline: biometric QR tickets to instant results.
-            </motion.p>
-          </div>
-
-          {/* Sequential Journey Across Single Continuous Line (NOT 8 cards) */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="text-xs font-mono text-[#5A6578] dark:text-[#9DA9BE] flex items-center justify-between pb-2 border-b border-[#C87D32]/20">
-              <span>EXAMINATION PIPELINE TRACKER</span>
-              <span className="text-[#C87D32] font-semibold">Continuous End-to-End Line</span>
-            </div>
-
-            {/* Single continuous animated line with milestone nodes */}
-            <div className="relative py-6">
-              
-              {/* The Single Continuous Horizontal Line */}
-              <div className="absolute top-1/2 left-4 right-4 h-[2px] bg-[#C87D32]/25 -translate-y-1/2" />
+          {/* Sticky Left Chapter Rail */}
+          <aside className="hidden lg:block w-36 xl:w-40 shrink-0 sticky top-24 select-none self-start">
+            <div className="relative pl-4 py-2">
+              <div className="absolute left-[5px] top-2 bottom-2 w-[1px] bg-[#C87D32]/25 dark:bg-[#C87D32]/20 origin-top" />
               <div
-                className="absolute top-1/2 left-4 h-[2.5px] bg-[#C87D32] -translate-y-1/2 transition-all duration-500"
-                style={{ width: `${(admissionsStep / 8) * 94}%` }}
+                className="absolute left-[5px] top-2 w-[1.5px] bg-[#C87D32] transition-all duration-300 origin-top"
+                style={{
+                  height: `${(activeChapter / (chapters.length - 1)) * 96}%`,
+                }}
               />
 
-              {/* 8 Milestone Stages along the single line */}
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 relative z-10 text-center">
-                {[
-                  'Application',
-                  'Verification',
-                  'Hall Ticket',
-                  'QR Check',
-                  'Exam',
-                  'Submission',
-                  'AI Eval',
-                  'Result',
-                ].map((stageName, i) => {
-                  const isDone = i < admissionsStep;
-                  const isCurrent = i === admissionsStep - 1;
+              <div className="space-y-3">
+                {chapters.map((chap, idx) => {
+                  const isActive = activeChapter === idx;
+                  const isPast = activeChapter > idx;
 
                   return (
                     <button
-                      key={stageName}
-                      onClick={() => setAdmissionsStep(i + 1)}
-                      className="flex flex-col items-center group focus:outline-none"
+                      key={chap.id}
+                      onClick={() => scrollToChapter(chap.id, idx)}
+                      className="group relative flex items-center gap-2.5 text-left w-full focus:outline-none transition-all duration-200"
                     >
                       <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-[10px] transition-all duration-300 ${
-                          isCurrent
-                            ? 'bg-[#C87D32] text-white ring-4 ring-[#FAF5EB] dark:ring-[#070B13] scale-110 shadow-md font-bold'
-                            : isDone
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-[#FAF5EB] dark:bg-[#0E1524] border border-[#C87D32]/40 text-[#5A6578]'
+                        className={`absolute -left-[15px] rounded-full transition-all duration-200 flex items-center justify-center ${
+                          isActive
+                            ? 'w-2.5 h-2.5 bg-[#C87D32] ring-4 ring-[#FAF5EB] dark:ring-[#070B13] scale-110 shadow-sm'
+                            : isPast
+                            ? 'w-2 h-2 bg-emerald-600 ring-2 ring-[#FAF5EB] dark:ring-[#070B13]'
+                            : 'w-1.5 h-1.5 border border-[#C87D32]/40 bg-[#FAF5EB] dark:bg-[#070B13]'
                         }`}
                       >
-                        {isDone ? '✓' : `0${i + 1}`}
+                        {isPast && (
+                          <span className="text-[7px] text-white font-bold leading-none">✓</span>
+                        )}
                       </div>
-                      <span
-                        className={`text-[10px] font-sans mt-2 tracking-tight transition-colors ${
-                          isCurrent
-                            ? 'font-bold text-[#121926] dark:text-[#F5EFE6]'
-                            : 'text-[#5A6578]/80 dark:text-[#9DA9BE]/60'
-                        }`}
-                      >
-                        {stageName}
-                      </span>
+
+                      <div className="flex flex-col transition-all duration-200 pl-1">
+                        <span
+                          className={`font-mono text-[9px] tracking-wider transition-all duration-150 ${
+                            isActive
+                              ? 'text-[#C87D32] dark:text-[#E5A955] font-bold'
+                              : 'text-[#5A6578]/60 dark:text-[#9DA9BE]/40 group-hover:text-[#121926]'
+                          }`}
+                        >
+                          {chap.num}
+                        </span>
+                        <span
+                          className={`text-xs font-serif leading-tight transition-all duration-150 ${
+                            isActive
+                              ? 'text-[#121926] dark:text-[#F5EFE6] font-bold translate-x-0.5'
+                              : 'text-[#5A6578]/70 dark:text-[#9DA9BE]/50 group-hover:text-[#121926] dark:group-hover:text-[#F5EFE6]'
+                          }`}
+                        >
+                          {chap.short}
+                        </span>
+                      </div>
+
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeRailUnderline"
+                          className="absolute bottom-0 left-3 right-4 h-[1px] bg-[#C87D32]/40"
+                          transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                        />
+                      )}
                     </button>
                   );
                 })}
               </div>
-
             </div>
+          </aside>
 
-            {/* Active Stage Callout */}
-            <div className="p-4 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10 text-xs space-y-1">
-              <div className="flex items-center justify-between font-mono text-[10px] text-[#0284C7] dark:text-[#38BDF8]">
-                <span>STAGE 0{admissionsStep} AUDIT LOG</span>
-                <span>Sub-second biometric check-in active</span>
-              </div>
-              <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
-                {admissionsStep === 1 && 'Application Received: Digital form submitted with certified documents.'}
-                {admissionsStep === 2 && 'Identity Verification: Automatic Aadhaar / Government ID checksum cleared.'}
-                {admissionsStep === 3 && 'Hall Ticket Dispatched: Cryptographic QR ticket assigned to student device.'}
-                {admissionsStep === 4 && 'QR Gate Scan: Biometric check-in under 2 seconds. Anti-impersonation verified.'}
-                {admissionsStep === 5 && 'Examination In Session: Hall 204, Desk #18. Seating mapped.'}
-                {admissionsStep === 6 && 'Submission Logged: Answer sheets scanned and cryptographically timestamped.'}
-                {admissionsStep === 7 && 'AI Step Evaluation: Rubric-based step evaluation with faculty oversight.'}
-                {admissionsStep === 8 && 'Verified Result Published: Digitally signed score sent to parent & board.'}
-              </div>
-            </div>
+          {/* Main 10 Chapter Stream */}
+          <main className="flex-1 min-w-0 space-y-12 lg:space-y-16 pb-20">
 
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#38BDF8]/40 to-[#C87D32]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 05 — FINANCE & TALLY */}
-        {/* Vintage Academic Ledger: Fee -> AI-Education -> Tally */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-05" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              05 / FINANCE & TALLY
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Finance that stays in sync.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Student Fee ↓ AI-Education ↓ Tally. Zero manual ledger entries.
-            </motion.p>
-          </div>
-
-          {/* Vintage Ruled Academic Ledger on Ruled Paper */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#C87D32]/20">
-              <span className="text-[#C87D32]">ACADEMIC GENERAL LEDGER • FOLIO #408</span>
-              <button
-                onClick={() => {
-                  setIsSyncingLedger(true);
-                  setTimeout(() => setIsSyncingLedger(false), 900);
-                }}
-                className="px-3.5 py-1 rounded-full border border-[#C87D32] text-xs font-editorial italic hover:bg-[#C87D32] hover:text-white transition-all flex items-center gap-1.5 shadow-sm"
-              >
-                <RefreshCw className={`w-3 h-3 ${isSyncingLedger ? 'animate-spin' : ''}`} />
-                <span>Simulate Ingestion</span>
-              </button>
-            </div>
-
-            {/* Classical Double-entry Ledger Table directly on the canvas */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-[#C87D32]/30 font-mono text-[10px] text-[#5A6578] dark:text-[#9DA9BE]">
-                    <th className="py-2">DATE</th>
-                    <th className="py-2">PARTICULARS</th>
-                    <th className="py-2">VOUCHER</th>
-                    <th className="py-2 text-right">DEBIT (₹)</th>
-                    <th className="py-2 text-right">CREDIT (₹)</th>
-                    <th className="py-2 text-center">TALLY STATUS</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#C87D32]/15">
-                  <tr>
-                    <td className="py-3 font-mono text-[11px]">05-Oct</td>
-                    <td className="py-3 font-bold text-[#121926] dark:text-[#F5EFE6]">
-                      Term II Tuition Fee (Student #4029)
-                    </td>
-                    <td className="py-3 font-mono text-[11px] text-[#C87D32]">RCPT-8821</td>
-                    <td className="py-3 font-mono text-right text-emerald-600">45,000.00</td>
-                    <td className="py-3 font-mono text-right text-[#5A6578]">—</td>
-                    <td className="py-3 text-center">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold">
-                        SYNCED ✓
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 font-mono text-[11px]">04-Oct</td>
-                    <td className="py-3 font-bold text-[#121926] dark:text-[#F5EFE6]">
-                      Physics Lab Reagents & Hardware
-                    </td>
-                    <td className="py-3 font-mono text-[11px] text-[#C87D32]">VCH-1094</td>
-                    <td className="py-3 font-mono text-right text-[#5A6578]">—</td>
-                    <td className="py-3 font-mono text-right text-rose-600">12,400.00</td>
-                    <td className="py-3 text-center">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold">
-                        SYNCED ✓
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Real-time sync flow indicator */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-[#5A6578] dark:text-[#9DA9BE] gap-2 border-t border-[#C87D32]/20">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Data Flow: FEE RECEIPT ➔ AI-EDUCATION ➔ TALLYPRIME</span>
-              </div>
-              <span className="text-[#C87D32] font-semibold">Tally Ledger: Zero Discrepancy</span>
-            </div>
-
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#C87D32]/40 to-[#38BDF8]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 06 — CAMPUS COMMUNICATION */}
-        {/* Illustrated Campus Network: Nodes converge into 3 AI updates */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-06" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              06 / CAMPUS COMMUNICATION
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Every conversation. One campus.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Messages move between leadership, staff, students, and parents.
-            </motion.p>
-          </div>
-
-          {/* Illustrated Campus Nodes Converging into AI Summary */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="flex items-center justify-between text-xs font-mono text-[#5A6578] dark:text-[#9DA9BE] pb-2 border-b border-[#C87D32]/20">
-              <span>CAMPUS COMMUNICATION TOPOLOGY</span>
-              <span className="text-[#C87D32] font-bold">5 Nodes Active</span>
-            </div>
-
-            {/* 5 Illustrated Campus Nodes */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
-              {[
-                { title: 'Principal', role: 'Executive Direction', count: '14 sent' },
-                { title: 'Teacher', role: 'Class Logs & Tests', count: '82 sent' },
-                { title: 'HOD', role: 'Syllabus Review', count: '29 sent' },
-                { title: 'Student', role: 'Queries & Doubts', count: '140 sent' },
-                { title: 'Parent', role: 'Confirmations', count: '64 sent' },
-              ].map((node) => (
-                <div
-                  key={node.title}
-                  className="p-3.5 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1 shadow-sm"
-                >
-                  <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
-                    {node.title}
+            {/* =============================================================== */}
+            {/* CHAPTER 01 — ACADEMIC OPERATIONS (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-01"
+              num="01"
+              title="ACADEMIC OPERATIONS"
+              headline="Keep every class moving."
+              description="Smart scheduling, teacher availability and automatic proxy matching."
+              continuityLabel="TIMETABLE → AI LEARNING"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c1-1', label: 'Schedule Normal' },
+                { id: 'c1-2', label: 'Absence Detected' },
+                { id: 'c1-3', label: 'Proxy Assigned' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Monday Morning Timetable in Normal State'}
+                      {step === 1 && 'STAGE 02: Teacher Sharma Marked Absent at 08:45 AM'}
+                      {step === 2 && 'STAGE 03: Automatic AI Proxy Matching Confirmed'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Room 204 • Mathematics</span>
                   </div>
-                  <div className="text-[10px] text-[#5A6578] dark:text-[#9DA9BE] leading-tight">
-                    {node.role}
-                  </div>
-                  <div className="font-mono text-[9px] text-[#C87D32] pt-1">
-                    {node.count}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                    <div className="p-3 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                      <div className="font-mono text-[9px] text-[#C87D32]">08:30 • Room 101</div>
+                      <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">History II</div>
+                      <div className="italic text-[#526071] text-[10px]">Prof. K. Sen • Assigned</div>
+                      <div className="text-[9px] text-emerald-600 font-mono">✓ On Schedule</div>
+                    </div>
+
+                    <div className={`p-3 rounded-xl border transition-all space-y-1 ${
+                      step === 2
+                        ? 'border-[#38BDF8] bg-[#38BDF8]/10'
+                        : step === 1
+                        ? 'border-rose-400 bg-rose-500/10'
+                        : 'border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E]'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[9px] text-[#C87D32]">09:15 • Room 204</span>
+                        {step === 2 && <span className="text-[9px] font-mono text-[#0284C7] dark:text-[#38BDF8] font-bold">PROXY ASSIGNED ✓</span>}
+                        {step === 1 && <span className="text-[9px] font-mono text-rose-500 font-bold">ABSENT ALERT</span>}
+                        {step === 0 && <span className="text-[9px] font-mono text-emerald-600">Assigned</span>}
+                      </div>
+                      <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">Mathematics</div>
+                      <div className="italic text-[#526071] text-[10px]">
+                        {step === 2 ? 'Dr. Mehta (Proxy Matched)' : 'Teacher: Sharma'}
+                        {step > 0 && <span className="line-through text-rose-500 ml-1">Absent</span>}
+                      </div>
+                      <div className="text-[9px] font-mono text-[#5A6578]">
+                        {step === 2 && 'Workload: 98% syllabus alignment'}
+                        {step === 1 && 'Scanning 14 available faculty...'}
+                        {step === 0 && 'Standard schedule'}
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                      <div className="font-mono text-[9px] text-[#C87D32]">10:15 • Room 102</div>
+                      <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">Physics Lab</div>
+                      <div className="italic text-[#526071] text-[10px]">Dr. V. Prasad • Assigned</div>
+                      <div className="text-[9px] text-emerald-600 font-mono">✓ On Schedule</div>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            />
 
-            {/* Convergence Box: AI summarizes into 3 Important Updates */}
-            <div className="p-5 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10 space-y-3 text-xs">
-              <div className="font-mono uppercase tracking-wider text-[#0284C7] dark:text-[#38BDF8] font-bold flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#38BDF8]" />
-                  <span>AI Executive Brief • 3 Important Updates Today</span>
-                </div>
-                <span className="text-[10px] text-[#5A6578]">Synthesized from 329 messages</span>
-              </div>
-
-              <div className="space-y-2 italic text-[#121926] dark:text-[#F5EFE6] leading-relaxed text-sm">
-                <p>1. Class 10-A Math proxy assigned to Dr. Mehta with 0 min loss of instruction.</p>
-                <p>2. Term II Fee settlement crossed 94% threshold; automatic receipt notifications dispatched.</p>
-                <p>3. Senior Science Olympiad trial rosters published and delivered to 48 candidate families.</p>
-              </div>
-            </div>
-
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#38BDF8]/40 to-[#C87D32]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 07 — PARENT PORTAL */}
-        {/* Phone Interface Mockup resting on notebook */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-07" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              07 / PARENT PORTAL
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Keep parents in the loop.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Instant attendance timestamps, fee receipts, and school updates.
-            </motion.p>
-          </div>
-
-          {/* Phone Mockup lying directly on the notebook paper */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#C87D32]/20">
-              <span className="text-[#C87D32]">PARENT DISPATCH INTERFACE</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setParentTab('attendance')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    parentTab === 'attendance' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Attendance
-                </button>
-                <button
-                  onClick={() => setParentTab('fee')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    parentTab === 'fee' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Fee Receipt
-                </button>
-                <button
-                  onClick={() => setParentTab('notice')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    parentTab === 'notice' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  School Notice
-                </button>
-              </div>
-            </div>
-
-            {/* Phone Frame Mockup */}
-            <div className="max-w-md mx-auto rounded-3xl border-2 border-[#121926]/20 dark:border-[#F5EFE6]/20 bg-[#FAF5EB] dark:bg-[#070B13] p-5 shadow-xl space-y-4">
-              
-              {/* Phone Status Bar */}
-              <div className="flex items-center justify-between text-[10px] font-mono text-[#5A6578] dark:text-[#9DA9BE] pb-2 border-b border-[#C87D32]/10">
-                <span>08:16 AM</span>
-                <span className="w-12 h-2.5 rounded-full bg-[#121926]/10 dark:bg-white/10" />
-                <span>5G • 98%</span>
-              </div>
-
-              {/* Push Notification Banner */}
-              <div className="p-4 rounded-2xl border border-[#38BDF8]/40 bg-[#38BDF8]/10 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono text-[#0284C7] dark:text-[#38BDF8] font-bold">
-                  <span>AI-EDUCATION PARENT PORTAL</span>
-                  <span>Just Now</span>
-                </div>
-                <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
-                  {parentTab === 'attendance' && 'Aarav recorded present at Main Gate Biometric Terminal 2.'}
-                  {parentTab === 'fee' && 'Term II Fee of ₹45,000 received. GST invoice #INV-89 ready for download.'}
-                  {parentTab === 'notice' && 'Annual Sports Day trials begin this Thursday at 09:00 AM.'}
-                </div>
-                <div className="text-[11px] text-[#5A6578] dark:text-[#A6B4C9] italic">
-                  {parentTab === 'attendance' && 'Timestamp: 08:14:22 AM IST • Facial recognition confidence: 99.8%'}
-                  {parentTab === 'fee' && 'Payment mode: UPI / Netbanking • Synchronized with TallyPrime'}
-                  {parentTab === 'notice' && 'Athletics, Basketball & Swimming rosters attached.'}
-                </div>
-              </div>
-
-              {/* Bottom Quick Actions */}
-              <div className="flex items-center justify-around pt-2 text-[11px] font-mono text-[#C87D32]">
-                <span>View Full Record →</span>
-                <span>Contact Principal →</span>
-              </div>
-
-            </div>
-
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#C87D32]/40 to-[#38BDF8]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 08 — ADAPTIVE LEARNING */}
-        {/* Branching Learning Path: Correct vs Needs Help */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-08" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              08 / ADAPTIVE LEARNING
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Learning that adapts.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Dynamic branching paths based on real-time student mastery.
-            </motion.p>
-          </div>
-
-          {/* Dynamic Branching Path Diagram directly on paper */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#C87D32]/20">
-              <span className="text-[#5A6578]">DIAGNOSTIC PATH CALIBRATION</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setAdaptiveBranch('correct')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    adaptiveBranch === 'correct' ? 'bg-emerald-600 text-white font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Student Answer: Correct
-                </button>
-                <button
-                  onClick={() => setAdaptiveBranch('needs_help')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    adaptiveBranch === 'needs_help' ? 'bg-rose-600 text-white font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Student Answer: Needs Help
-                </button>
-              </div>
-            </div>
-
-            {/* Branching Path Demonstration */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              
-              <div className="p-4 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
-                <div className="font-mono text-[10px] text-[#C87D32]">Stage 1 • Diagnostic Question</div>
-                <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
-                  Quadratic Factorization
-                </div>
-                <p className="text-[11px] italic text-[#526071] dark:text-[#A6B4C9]">
-                  Evaluates procedural memory and sign factoring logic.
-                </p>
-              </div>
-
-              <div className={`p-4 rounded-xl border transition-all space-y-1 ${
-                adaptiveBranch === 'correct'
-                  ? 'border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/20'
-                  : 'border-rose-500/40 bg-rose-50/20 dark:bg-rose-950/20'
-              }`}>
-                <div className="font-mono text-[10px] text-[#C87D32]">
-                  Stage 2 • {adaptiveBranch === 'correct' ? 'Accelerated Track' : 'Diagnostic Remediation'}
-                </div>
-                <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
-                  {adaptiveBranch === 'correct'
-                    ? 'Higher-order derivation unlocked'
-                    : 'Targeted visual decomposition'}
-                </div>
-                <p className="text-[11px] italic text-[#526071] dark:text-[#A6B4C9]">
-                  {adaptiveBranch === 'correct'
-                    ? 'Student advances immediately without redundant busywork.'
-                    : 'AI isolates sign inversion error and prompts micro-practice.'}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
-                <div className="font-mono text-[10px] text-[#C87D32]">Stage 3 • Outcome</div>
-                <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
-                  Verified Mastery
-                </div>
-                <p className="text-[11px] italic text-emerald-600 dark:text-emerald-400">
-                  {adaptiveBranch === 'correct'
-                    ? 'Mastery score: 98% • Level up'
-                    : 'Remediation completed • Returned to main track'}
-                </p>
-              </div>
-
-            </div>
-
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#38BDF8]/40 to-[#C87D32]/40" />
-            </div>
-
-          </div>
-        </section>
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 09 — TUTOR & COMPETITIVE PREP */}
-        {/* Visual Learning Loop: Practice -> Analysis -> Blindspot -> Targeted */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-09" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              09 / TUTOR & COMPETITIVE PREP
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              A smarter way to prepare.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Continuous feedback loops for JEE, NEET, CLAT, and board exams.
-            </motion.p>
-          </div>
-
-          {/* Visual Learning Loop on Canvas */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#C87D32]/20">
-              <span className="text-[#C87D32]">CYCLICAL MASTERY LOOP</span>
-              <span className="text-[#5A6578]">Step {prepLoopStep} of 4</span>
-            </div>
-
-            {/* 4 Loop Nodes */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
-              {[
-                { step: 1, title: 'Practice Set', desc: 'Mock examination under timed conditions' },
-                { step: 2, title: 'Analysis', desc: 'AI highlights time spent per problem' },
-                { step: 3, title: 'Blindspot Found', desc: 'Rotational torque conceptual omission' },
-                { step: 4, title: 'Score Boost', desc: '+18% percentile leap on retake' },
-              ].map((item) => (
-                <button
-                  key={item.step}
-                  onClick={() => setPrepLoopStep(item.step)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    prepLoopStep === item.step
-                      ? 'border-[#C87D32] bg-[#FAF5EB] dark:bg-[#111A2E] ring-2 ring-[#C87D32]/40 shadow-sm'
-                      : 'border-[#C87D32]/20 opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <div className="font-mono text-[10px] text-[#C87D32]">Step 0{item.step}</div>
-                  <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6] mt-0.5">
-                    {item.title}
+            {/* =============================================================== */}
+            {/* CHAPTER 02 — AI STUDY BUDDY (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-02"
+              num="02"
+              title="AI STUDY BUDDY"
+              headline="Answers grounded in your curriculum."
+              description="Direct citations with chapter, section and exact page grounding."
+              continuityLabel="CITATION → ASSESSMENT RUBRIC"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c2-1', label: 'Textbook Query' },
+                { id: 'c2-2', label: 'AI Grounded Answer' },
+                { id: 'c2-3', label: 'Source Citation Line' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Student Queries Textbook'}
+                      {step === 1 && 'STAGE 02: AI Study Buddy Ingests Curriculum'}
+                      {step === 2 && 'STAGE 03: Verified Textbook Citation Linked'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Biology • Cellular Energetics</span>
                   </div>
-                  <div className="text-[10px] text-[#5A6578] dark:text-[#A6B4C9] mt-1 leading-tight">
-                    {item.desc}
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#C87D32]/10 text-[#C87D32] font-bold">
+                      QUESTION
+                    </span>
+                    <span className="font-editorial text-base sm:text-lg font-bold text-[#121926] dark:text-[#F5EFE6]">
+                      “Explain light-dependent reactions in photosynthesis.”
+                    </span>
                   </div>
-                </button>
-              ))}
-            </div>
 
-            {/* Continuity Line */}
-            <div className="pt-8 flex justify-center">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-[#C87D32]/40 to-[#38BDF8]/40" />
-            </div>
+                  <div className={`p-4 rounded-xl border text-xs space-y-2 transition-all ${
+                    step >= 1 ? 'border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10' : 'border-[#C87D32]/20 opacity-60'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 font-editorial font-bold text-[#121926] dark:text-[#F5EFE6]">
+                        <Sparkles className="w-3.5 h-3.5 text-[#38BDF8]" />
+                        <span>AI Response {step >= 2 && '(Grounded in Curriculum)'}</span>
+                      </div>
+                      {step >= 2 && (
+                        <span className="px-2.5 py-0.5 rounded-full border border-[#38BDF8]/60 text-[10px] font-mono text-[#0284C7] dark:text-[#38BDF8] flex items-center gap-1 font-semibold">
+                          <Bookmark className="w-3 h-3" />
+                          <span>Ch 04 • Sec 02 • Page 87</span>
+                        </span>
+                      )}
+                    </div>
 
-          </div>
-        </section>
+                    <p className="italic text-[#121926] dark:text-[#F5EFE6] leading-relaxed text-xs sm:text-sm">
+                      {step === 0 && 'Awaiting response generation from official syllabus...'}
+                      {step >= 1 && '“Photons excite chlorophyll in Photosystem II. Photolysis of water releases O₂ while electrons flow through cyt-b6f to generate NADPH and ATP powering the Calvin cycle.”'}
+                    </p>
 
-        {/* ----------------------------------------------------------------------- */}
-        {/* CHAPTER 10 — LAW EDUCATION */}
-        {/* Legal Folio: Case -> Concept -> Question -> Answer -> Revision */}
-        {/* ----------------------------------------------------------------------- */}
-        <section id="chapter-10" className="min-h-[90vh] flex flex-col justify-center space-y-6 pt-12 relative">
-          
-          <div className="space-y-2">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-xs font-mono tracking-widest uppercase text-[#C87D32] dark:text-[#E5A955]"
-            >
-              10 / LAW EDUCATION
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight"
-            >
-              Built for legal learning.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-xl"
-            >
-              Dedicated legal AI trained on Bare Acts, AIR judgments, and judicial syllabi.
-            </motion.p>
-          </div>
+                    {step >= 2 && (
+                      <div className="pt-1 text-[10px] font-mono text-[#0284C7] dark:text-[#38BDF8] flex items-center gap-1">
+                        <span>Lineage Verified:</span>
+                        <span className="underline font-bold">QUESTION ➔ AI ANSWER ➔ TEXTBOOK PAGE 87</span>
+                        <span>✓</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
 
-          {/* Legal Folio on Notebook Canvas */}
-          <div className="border border-[#C87D32]/25 rounded-2xl bg-[#FAF5EB]/90 dark:bg-[#0E1524]/90 p-6 sm:p-8 space-y-6 font-serif">
-            
-            <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#C87D32]/20">
-              <span className="text-[#C87D32]">CONSTITUTIONAL BENCH RETRIEVAL</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setLawTab('basic_structure')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    lawTab === 'basic_structure' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Basic Structure
-                </button>
-                <button
-                  onClick={() => setLawTab('due_process')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    lawTab === 'due_process' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Due Process (Art. 21)
-                </button>
-                <button
-                  onClick={() => setLawTab('judicial_review')}
-                  className={`px-3 py-1 rounded-full border transition-all ${
-                    lawTab === 'judicial_review' ? 'bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold' : 'text-[#5A6578]'
-                  }`}
-                >
-                  Judicial Review
-                </button>
-              </div>
-            </div>
+            {/* =============================================================== */}
+            {/* CHAPTER 03 — ASSESSMENTS (4 STEPS: 270vh) */}
+            {/* 01 Question Paper -> 02 Student Answers -> 03 AI Evaluation -> 04 Sealed Report */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-03"
+              num="03"
+              title="ASSESSMENTS"
+              headline="Assessment without the busywork."
+              description="From question paper to cryptographically sealed report cards."
+              continuityLabel="REPORT CARD → ADMISSION TICKET"
+              minHeightClass="min-h-[270vh]"
+              steps={[
+                { id: 'c3-1', label: 'Question Paper' },
+                { id: 'c3-2', label: 'Student Answer' },
+                { id: 'c3-3', label: 'AI Evaluation' },
+                { id: 'c3-4', label: 'Sealed Report' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Official Examination Question Paper'}
+                      {step === 1 && 'STAGE 02: Candidate Handwritten Answer Sheet'}
+                      {step === 2 && 'STAGE 03: AI Step Evaluation & Red-Ink Annotation'}
+                      {step === 3 && 'STAGE 04: Official Cryptographic Sealed Report Card'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Physics Advanced • Roll #2024-B-14</span>
+                  </div>
 
-            {/* Case Precedent & Bare Act Analysis */}
-            <div className="p-5 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-2 text-xs">
-              <div className="flex items-center justify-between font-mono text-[10px] text-[#C87D32]">
-                <span>
-                  {lawTab === 'basic_structure' && 'AIR 1973 SC 1461 • Kesavananda Bharati v. State of Kerala'}
-                  {lawTab === 'due_process' && 'AIR 1978 SC 597 • Maneka Gandhi v. Union of India'}
-                  {lawTab === 'judicial_review' && 'AIR 1980 SC 1789 • Minerva Mills v. Union of India'}
+                  {/* Step 0: Question Paper */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-2 text-xs">
+                      <div className="font-mono text-[10px] text-[#C87D32]">PROBLEM 4 • SECTION B (5 MARKS)</div>
+                      <div className="font-editorial text-base sm:text-lg font-bold text-[#121926] dark:text-[#F5EFE6]">
+                        “Derive the moment of inertia of a thin hollow cylinder of mass M and radius R about its central longitudinal axis.”
+                      </div>
+                      <div className="text-[11px] text-[#5A6578] italic">
+                        Marking Rubric: Formula integration setup (2M) • Thin-shell boundary conditions (2M) • Units and vector form (1M).
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: Student Answer */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-2 text-xs">
+                      <div className="font-mono text-[10px] text-[#5A6578]">STUDENT HANDWRITTEN SUBMISSION (BLUE INK)</div>
+                      <p className="italic text-[#121926] dark:text-[#F5EFE6] leading-relaxed text-sm">
+                        “Let cylinder mass be M, length L, radius R. Dividing into elemental cylindrical rings: <br />
+                        <span className="font-mono font-normal">dm = (M / 2πRL) · (2πR dl) = (M/L) dl.</span> <br />
+                        Every mass element is at uniform distance R from the central axis. Therefore: <br />
+                        <span className="font-mono font-bold text-[#C87D32]">I = ∫ r² dm = R² ∫ dm = M · R²</span>.”
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Step 2: AI Step Evaluation */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-rose-400/40 bg-rose-50/15 dark:bg-rose-950/20 space-y-2 text-xs">
+                      <div className="flex items-center justify-between font-mono text-[10px] text-rose-600 dark:text-rose-400 font-bold">
+                        <span>AI EVALUATION ENGINE • RED-INK ANNOTATIONS</span>
+                        <span className="font-serif text-sm">+5 / 5 FULL STEP MARKS</span>
+                      </div>
+                      <div className="space-y-1 text-xs text-[#121926] dark:text-[#F5EFE6] italic">
+                        <p>✓ Step 1: Symmetry and uniform mass distribution correct (+2/5)</p>
+                        <p>✓ Step 2: Integration of mass elements across boundary limits verified (+2/5)</p>
+                        <p>✓ Step 3: Final dimensional analysis valid (kg·m²) (+1/5)</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: Sealed Report Card */}
+                  {step === 3 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                      <div className="p-3 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
+                        <div className="font-mono text-[9px] text-[#5A6578]">Subject Breakdown</div>
+                        <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">Physics • 94/100</div>
+                        <div className="italic text-[#C87D32] text-[10px]">Grade A+ (Distinction)</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-[#C87D32]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
+                        <div className="font-mono text-[9px] text-[#5A6578]">Batch Ranking</div>
+                        <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">Rank 03 / 184</div>
+                        <div className="italic text-emerald-600 text-[10px]">Top 2% in batch</div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/20">
+                        <div className="font-mono text-[9px] text-emerald-700 dark:text-emerald-400">Institutional Seal</div>
+                        <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">Controller Signed ✓</div>
+                        <div className="italic text-[#526071] text-[10px]">Dispatched to Parent Portal</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 04 — ADMISSIONS & EXAMS (4 STEPS: 270vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-04"
+              num="04"
+              title="ADMISSIONS & EXAMS"
+              headline="From application to result."
+              description="One continuous verified pipeline: biometric QR tickets to instant results."
+              continuityLabel="EXAM RESULT → FEE INVOICE"
+              minHeightClass="min-h-[270vh]"
+              steps={[
+                { id: 'c4-1', label: 'Online Form' },
+                { id: 'c4-2', label: 'QR Hall Pass' },
+                { id: 'c4-3', label: 'Gate Scan' },
+                { id: 'c4-4', label: 'Instant Result' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Application Received & Certified Audit'}
+                      {step === 1 && 'STAGE 02: Biometric QR Hall Ticket Dispatched'}
+                      {step === 2 && 'STAGE 03: Gate Biometric Turnstile Check-in'}
+                      {step === 3 && 'STAGE 04: AI Evaluation & Verified Transcript'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Candidate #2024-B-891</span>
+                  </div>
+
+                  {/* Step 0: 01 Online Form */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-[#C87D32]" />
+                          <span className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            ADMISSION APPLICATION • #ADM-2024-891
+                          </span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          AUDIT CLEARED ✓
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div className="p-2 rounded-lg bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/15">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Candidate Name</span>
+                          <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">Aarav Sharma</span>
+                        </div>
+                        <div className="p-2 rounded-lg bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/15">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Applied Stream</span>
+                          <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">Grade 11 • PCM + CS</span>
+                        </div>
+                        <div className="p-2 rounded-lg bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/15 col-span-2 sm:col-span-1">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Prior Examination</span>
+                          <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">10th Board: 96.4%</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[9px] font-mono uppercase text-[#C87D32] tracking-wider font-bold">Document Integrity Verification:</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] font-mono">
+                          <span className="p-1.5 rounded border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3 h-3 shrink-0" />
+                            <span>Marksheet: DigiLocker Verified</span>
+                          </span>
+                          <span className="p-1.5 rounded border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3 h-3 shrink-0" />
+                            <span>Identity: Aadhaar Biometric</span>
+                          </span>
+                          <span className="p-1.5 rounded border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3 h-3 shrink-0" />
+                            <span>Status: Approved by Dean</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 QR Hall Pass (Screenshot 1) */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border-2 border-dashed border-[#C87D32]/40 bg-[#FFFDF9] dark:bg-[#0A101D] space-y-3 text-xs shadow-sm">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/20 pb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-[#C87D32]/10 border border-[#C87D32]/30 flex items-center justify-center text-[#C87D32] font-editorial font-bold text-xs">
+                            Æ
+                          </div>
+                          <div>
+                            <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                              OFFICIAL EXAMINATION HALL TICKET
+                            </div>
+                            <div className="font-mono text-[9px] text-[#5A6578]">
+                              Board of Secondary & Higher Education • Center #DL-402
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full border border-[#C87D32] bg-[#C87D32]/10 text-[#C87D32] dark:text-[#E5A955] font-mono text-[10px] font-bold">
+                          CONFIRMED SEAT
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                        <div className="sm:col-span-2 space-y-1.5">
+                          <div className="grid grid-cols-2 gap-2 text-[11px]">
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Candidate</span>
+                              <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">Aarav Sharma</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Roll Number</span>
+                              <span className="font-mono font-bold text-[#C87D32]">2024-B-891</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Exam Subject</span>
+                              <span className="text-[#121926] dark:text-[#F5EFE6]">Physics Advanced & Math</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Venue & Desk</span>
+                              <span className="font-bold text-emerald-600 dark:text-emerald-400">Hall 204 • Desk #18</span>
+                            </div>
+                          </div>
+                          <div className="text-[9px] font-mono text-[#5A6578] pt-1">
+                            Shift: Monday 14-Oct • 09:00 AM – 12:00 PM (Report 30 mins prior)
+                          </div>
+                        </div>
+
+                        {/* Interactive SVG QR Code Card */}
+                        <div className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] text-center">
+                          <div className="p-1.5 bg-white rounded-lg shadow-sm">
+                            <svg className="w-16 h-16 text-[#121926]" viewBox="0 0 100 100" fill="currentColor">
+                              {/* QR Finder Top-Left */}
+                              <rect x="5" y="5" width="28" height="28" rx="4" />
+                              <rect x="9" y="9" width="20" height="20" fill="white" />
+                              <rect x="13" y="13" width="12" height="12" />
+                              {/* QR Finder Top-Right */}
+                              <rect x="67" y="5" width="28" height="28" rx="4" />
+                              <rect x="71" y="9" width="20" height="20" fill="white" />
+                              <rect x="75" y="13" width="12" height="12" />
+                              {/* QR Finder Bottom-Left */}
+                              <rect x="5" y="67" width="28" height="28" rx="4" />
+                              <rect x="9" y="71" width="20" height="20" fill="white" />
+                              <rect x="13" y="75" width="12" height="12" />
+                              {/* Data Bits Pattern */}
+                              <rect x="40" y="8" width="6" height="6" />
+                              <rect x="52" y="8" width="6" height="6" />
+                              <rect x="40" y="20" width="6" height="6" />
+                              <rect x="46" y="26" width="6" height="6" />
+                              <rect x="8" y="40" width="6" height="6" />
+                              <rect x="20" y="40" width="6" height="6" />
+                              <rect x="26" y="46" width="6" height="6" />
+                              <rect x="40" y="40" width="18" height="18" rx="2" fill="#C87D32" />
+                              <rect x="68" y="40" width="6" height="6" />
+                              <rect x="80" y="40" width="6" height="6" />
+                              <rect x="86" y="52" width="6" height="6" />
+                              <rect x="40" y="68" width="6" height="6" />
+                              <rect x="52" y="74" width="6" height="6" />
+                              <rect x="40" y="86" width="6" height="6" />
+                              <rect x="68" y="68" width="12" height="6" />
+                              <rect x="74" y="80" width="18" height="12" />
+                            </svg>
+                          </div>
+                          <span className="text-[8px] font-mono text-[#C87D32] mt-1 font-bold">
+                            SCAN AT TURNSTILE
+                          </span>
+                          <span className="text-[7px] font-mono text-[#5A6578]">
+                            SHA-256: 8f9a..3c21
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-[#C87D32]/15 pt-2 text-[10px] font-mono text-[#5A6578]">
+                        <span className="tracking-widest">||||| |||| |||||| |||||||||||</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Admit Card Dispatched & Active</span>
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 Gate Scan */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-3 text-xs">
+                      <div className="flex items-center justify-between font-mono text-[10px]">
+                        <span className="text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+                          <Scan className="w-3.5 h-3.5 animate-pulse text-emerald-500" />
+                          <span>MAIN ENTRANCE • TURNSTILE #02 TERMINAL</span>
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                          GATE UNLOCKED ✓
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div className="p-2.5 rounded-lg border border-emerald-500/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Facial Biometric</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">99.8% Match</span>
+                          <span className="text-[9px] text-[#5A6578] block">Camera 02 • 08:14:22 AM</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-emerald-500/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">QR Cryptography</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">Valid Pass #891</span>
+                          <span className="text-[9px] text-[#5A6578] block">Hall 204 • Desk #18</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-emerald-500/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Throughput Speed</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">1.4 Seconds</span>
+                          <span className="text-[9px] text-[#5A6578] block">Zero Line Wait</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-800 dark:text-emerald-200 text-[11px] font-mono flex items-center justify-between">
+                        <span>Aarav Sharma cleared turnstile. Parent notified via WhatsApp.</span>
+                        <span className="font-bold">PROCEED TO DESK ➔</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: 04 Instant Result */}
+                  {step === 3 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div>
+                          <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            DIGITAL EXAMINATION TRANSCRIPT
+                          </div>
+                          <div className="font-mono text-[9px] text-[#5A6578]">
+                            Candidate: Aarav Sharma • Roll #2024-B-891
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono text-[10px] font-bold">
+                          DISTINCTION • 94.7%
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="p-2 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Physics Adv</span>
+                          <span className="font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">94 / 100</span>
+                          <span className="text-[8px] font-mono text-emerald-600">Grade A+</span>
+                        </div>
+                        <div className="p-2 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Mathematics</span>
+                          <span className="font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">98 / 100</span>
+                          <span className="text-[8px] font-mono text-emerald-600">Grade O (Top)</span>
+                        </div>
+                        <div className="p-2 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Chemistry</span>
+                          <span className="font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">92 / 100</span>
+                          <span className="text-[8px] font-mono text-emerald-600">Grade A+</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-[#C87D32]/15 pt-2 text-[10px] font-mono">
+                        <span className="text-[#5A6578]">Controller of Examinations • SHA-256 Validated</span>
+                        <span className="text-[#C87D32] font-bold underline cursor-pointer">
+                          Download Transcript PDF ➔
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 05 — FINANCE & TALLY (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-05"
+              num="05"
+              title="FINANCE & TALLY"
+              headline="Finance that stays in sync."
+              description="Student Fee ↓ AI-Education ↓ Tally. Zero manual ledger entries."
+              continuityLabel="LEDGER → CAMPUS NETWORK"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c5-1', label: 'Fee Invoice' },
+                { id: 'c5-2', label: 'Receipt Settlement' },
+                { id: 'c5-3', label: 'Tally Synchronized' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Fee Invoice Generation'}
+                      {step === 1 && 'STAGE 02: Digital Settlement & Receipt'}
+                      {step === 2 && 'STAGE 03: TallyPrime XML Bi-directional Sync'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Folio #408 • Voucher #8821</span>
+                  </div>
+
+                  {/* Step 0: 01 Fee Invoice (Screenshot 2) */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div>
+                          <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            ACADEMIC TAX INVOICE • #INV-2024-8821
+                          </div>
+                          <div className="font-mono text-[9px] text-[#5A6578]">
+                            Student: Aarav Sharma (Adm #4029) • Class 11-A
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono text-[9px] font-bold">
+                          DUE IN 10 DAYS
+                        </span>
+                      </div>
+
+                      <div className="divide-y divide-[#C87D32]/10 font-mono text-[11px]">
+                        <div className="py-1.5 flex items-center justify-between">
+                          <span className="text-[#121926] dark:text-[#F5EFE6]">1. Term II Tuition Fee (Oct–Dec 2024)</span>
+                          <span className="font-bold">₹ 32,000.00</span>
+                        </div>
+                        <div className="py-1.5 flex items-center justify-between">
+                          <span className="text-[#121926] dark:text-[#F5EFE6]">2. Advanced STEM & Robotics Lab Fee</span>
+                          <span className="font-bold">₹ 6,500.00</span>
+                        </div>
+                        <div className="py-1.5 flex items-center justify-between">
+                          <span className="text-[#121926] dark:text-[#F5EFE6]">3. AI Learning Platform & Digital Content License</span>
+                          <span className="font-bold">₹ 3,500.00</span>
+                        </div>
+                        <div className="py-1.5 flex items-center justify-between">
+                          <span className="text-[#121926] dark:text-[#F5EFE6]">4. Research Library & Consortium Access</span>
+                          <span className="font-bold">₹ 3,000.00</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t-2 border-[#C87D32]/20 pt-2 font-mono">
+                        <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">TOTAL AMOUNT PAYABLE:</span>
+                        <span className="font-bold text-base text-[#C87D32] dark:text-[#E5A955]">₹ 45,000.00</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-[10px] font-mono text-[#5A6578]">Invoice auto-generated via Student Ledger</span>
+                        <button className="px-3 py-1 rounded bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-mono text-[10px] font-bold hover:bg-[#C87D32] transition-colors">
+                          Pay ₹45,000 via UPI / Card ➔
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 Receipt Settlement */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border border-emerald-500/30 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs relative overflow-hidden">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div>
+                          <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            OFFICIAL FEE RECEIPT • ACKNOWLEDGEMENT
+                          </div>
+                          <div className="font-mono text-[9px] text-[#5A6578]">
+                            Receipt #REC-2024-8821 • Txn: UPI/HDFC/4298102384
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-bold">
+                          SETTLED ON 05-OCT ✓
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                        <div className="sm:col-span-2 space-y-1.5">
+                          <div className="grid grid-cols-2 gap-2 text-[11px]">
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Payer</span>
+                              <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">Mr. Rajesh Sharma</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Payment Mode</span>
+                              <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">HDFC UPI Autopay</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Amount Paid</span>
+                              <span className="font-mono text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">₹ 45,000.00</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-mono text-[#5A6578] block">Tax Category</span>
+                              <span className="font-mono text-[10px] text-[#5A6578]">Section 80C Eligible</span>
+                            </div>
+                          </div>
+                          <div className="text-[10px] font-mono text-[#5A6578] pt-1">
+                            Dispatched to Parent App & SMS confirmation sent to +91 98765-43210
+                          </div>
+                        </div>
+
+                        {/* Visual Ink Stamp */}
+                        <div className="flex items-center justify-center">
+                          <div className="w-24 h-24 rounded-full border-2 border-emerald-600/70 p-1 flex flex-col items-center justify-center text-center rotate-[-8deg] shadow-sm bg-emerald-50/20 dark:bg-emerald-950/30">
+                            <span className="text-[8px] font-mono font-bold text-emerald-700 dark:text-emerald-400 tracking-widest uppercase">
+                              ★ PAID & SETTLED ★
+                            </span>
+                            <span className="font-mono text-[9px] font-bold text-emerald-800 dark:text-emerald-300">
+                              05-OCT-2024
+                            </span>
+                            <span className="text-[7px] font-mono text-emerald-600 tracking-wider">
+                              BURSAR OFFICE
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-[#C87D32]/15 pt-2 text-[10px] font-mono">
+                        <span className="text-emerald-600 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Bank Wire Reconciled</span>
+                        </span>
+                        <span className="text-[#C87D32] underline cursor-pointer">
+                          Download Tax Receipt PDF ➔
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 Tally Synchronized */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/30 dark:border-[#38BDF8]/40 bg-[#FAF5EB] dark:bg-[#0E1524] text-[#121926] dark:text-white space-y-3 text-xs font-mono">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/20 dark:border-[#38BDF8]/20 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-[#C87D32] dark:text-[#38BDF8]" />
+                          <span className="font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            TALLYPRIME XML GATEWAY • PORT 9000
+                          </span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[9px] font-bold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-ping" />
+                          <span>CONNECTED & SYNCED</span>
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 bg-[#FFFDF9] dark:bg-[#070B13] p-3 rounded-lg border border-[#C87D32]/20 dark:border-[#38BDF8]/20 text-[11px]">
+                        <div className="text-[#C87D32] dark:text-[#38BDF8] text-[9px] tracking-wider uppercase font-bold">
+                          VOUCHER: RECEIPT #RV-2024-0419 • GUID: 8a4c12-3f9e
+                        </div>
+                        <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-bold">
+                          <span>Dr. HDFC Current Bank A/c #50200084</span>
+                          <span>₹ 45,000.00</span>
+                        </div>
+                        <div className="flex justify-between text-[#121926] dark:text-[#F5EFE6] font-medium">
+                          <span>Cr. Term II Tuition & Lab Fee Income</span>
+                          <span>₹ 45,000.00</span>
+                        </div>
+                        <div className="text-[10px] text-[#5A6578] dark:text-[#9DA9BE] italic pt-1 border-t border-[#C87D32]/10 dark:border-white/10">
+                          Narration: Being Term II fee recd for Aarav Sharma (Adm 4029) via UPI
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] text-[#5A6578] dark:text-[#9DA9BE]">
+                        <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Reconciliation Latency: 0.12s • Zero Discrepancy</span>
+                        </span>
+                        <span className="text-[#C87D32] dark:text-[#38BDF8] font-bold">Direct XML Webhook</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 06 — CAMPUS COMMUNICATION (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-06"
+              num="06"
+              title="CAMPUS COMMUNICATION"
+              headline="Every conversation. One campus."
+              description="Messages converge into an AI-synthesized executive brief."
+              continuityLabel="COMMUNICATION → PARENT CHANNEL"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c6-1', label: 'Campus Nodes' },
+                { id: 'c6-2', label: 'AI Filtering' },
+                { id: 'c6-3', label: 'Executive Brief' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: 5 Connected Institutional Roles'}
+                      {step === 1 && 'STAGE 02: AI Deduplication & Priority Analysis'}
+                      {step === 2 && 'STAGE 03: Executive Brief Delivered to Leadership'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">639 Active Messages</span>
+                  </div>
+
+                  {/* Step 0: 01 Campus Nodes */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <span className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                          CAMPUS COMMUNICATION TOPOLOGY
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-[#C87D32]/10 text-[#C87D32] font-mono text-[9px] font-bold">
+                          5 NODES CONNECTED
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                        <div className="p-2.5 rounded-lg border border-[#C87D32]/20 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1">
+                          <span className="font-editorial font-bold text-xs text-[#121926] dark:text-[#F5EFE6] block">Principal</span>
+                          <span className="font-mono text-[9px] text-[#C87D32] block">42 Notices</span>
+                          <span className="text-[8px] font-mono text-emerald-600 block">✓ Active</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-[#C87D32]/20 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1">
+                          <span className="font-editorial font-bold text-xs text-[#121926] dark:text-[#F5EFE6] block">Teachers</span>
+                          <span className="font-mono text-[9px] text-[#C87D32] block">128 Queries</span>
+                          <span className="text-[8px] font-mono text-emerald-600 block">✓ Active</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-[#C87D32]/20 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1">
+                          <span className="font-editorial font-bold text-xs text-[#121926] dark:text-[#F5EFE6] block">HODs</span>
+                          <span className="font-mono text-[9px] text-[#C87D32] block">64 Approvals</span>
+                          <span className="text-[8px] font-mono text-emerald-600 block">✓ Active</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-[#C87D32]/20 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1">
+                          <span className="font-editorial font-bold text-xs text-[#121926] dark:text-[#F5EFE6] block">Students</span>
+                          <span className="font-mono text-[9px] text-[#C87D32] block">310 Submissions</span>
+                          <span className="text-[8px] font-mono text-emerald-600 block">✓ Active</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-[#C87D32]/20 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1 col-span-2 sm:col-span-1">
+                          <span className="font-editorial font-bold text-xs text-[#121926] dark:text-[#F5EFE6] block">Parents</span>
+                          <span className="font-mono text-[9px] text-[#C87D32] block">95 Dues & Gate</span>
+                          <span className="text-[8px] font-mono text-emerald-600 block">✓ Active</span>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-mono text-[#5A6578] flex items-center justify-between pt-1">
+                        <span>Central Campus Event Bus • Real-time Websocket Stream</span>
+                        <span className="text-[#C87D32] font-bold">639 Messages/Hour</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 AI Filtering */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10 space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#38BDF8]/20 pb-2">
+                        <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#0284C7] dark:text-[#38BDF8]">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>AI SEMANTIC DEDUPLICATION & NOISE FILTER</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          98.6% NOISE REDUCED
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center font-mono">
+                        <div className="p-2.5 rounded-lg border border-[#38BDF8]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
+                          <span className="text-[9px] text-[#5A6578] block">Raw Messages</span>
+                          <span className="text-base font-bold text-[#121926] dark:text-[#F5EFE6]">639</span>
+                          <span className="text-[8px] text-[#5A6578]">Unstructured Stream</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-[#38BDF8]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
+                          <span className="text-[9px] text-[#5A6578] block">NLP Clusters</span>
+                          <span className="text-base font-bold text-[#0284C7] dark:text-[#38BDF8]">14 Topics</span>
+                          <span className="text-[8px] text-[#5A6578]">Deduplicated</span>
+                        </div>
+                        <div className="p-2.5 rounded-lg border border-[#38BDF8]/20 bg-[#FAF5EB] dark:bg-[#111A2E]">
+                          <span className="text-[9px] text-[#5A6578] block">Executive Actions</span>
+                          <span className="text-base font-bold text-emerald-600">3 Urgent</span>
+                          <span className="text-[8px] text-[#5A6578]">Actionable Items</span>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-mono text-[#5A6578] flex items-center justify-between pt-1">
+                        <span>NLP Processing Latency: 0.4s • Zero Communication Fatigue</span>
+                        <span className="text-emerald-600 font-bold">Synthesizing Brief ➔</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 Executive Brief */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-[#C87D32]" />
+                          <div>
+                            <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                              OFFICE OF THE PRINCIPAL • DAILY MORNING BRIEF
+                            </div>
+                            <div className="font-mono text-[9px] text-[#5A6578]">
+                              Generated: Monday 09:00 AM • Synthesized from 639 Campus Inputs
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          READY FOR REVIEW
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs text-[#121926] dark:text-[#F5EFE6] font-sans">
+                        <div className="p-2 rounded-lg bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/10 flex items-start gap-2">
+                          <span className="w-4 h-4 rounded-full bg-[#C87D32]/20 text-[#C87D32] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
+                          <span><strong>Faculty Proxy:</strong> Teacher Sharma absent; Dr. Mehta assigned to Class 10-A Math with 98% syllabus alignment. Zero lost instruction.</span>
+                        </div>
+                        <div className="p-2 rounded-lg bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/10 flex items-start gap-2">
+                          <span className="w-4 h-4 rounded-full bg-[#C87D32]/20 text-[#C87D32] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
+                          <span><strong>Fee Collection:</strong> Term II fee reconciliation crossed 94.2% milestone; ₹45,000 batches synced with TallyPrime without human entry.</span>
+                        </div>
+                        <div className="p-2 rounded-lg bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/10 flex items-start gap-2">
+                          <span className="w-4 h-4 rounded-full bg-[#C87D32]/20 text-[#C87D32] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
+                          <span><strong>Sports Trials:</strong> Athletic trials circular dispatched to 48 candidate families with online consent tracking.</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-[#C87D32]/15 pt-2 text-[10px] font-mono">
+                        <span className="text-[#5A6578]">Authenticated by Campus AI Engine</span>
+                        <div className="flex items-center gap-2">
+                          <button className="px-2.5 py-1 rounded border border-[#C87D32]/30 text-[#121926] dark:text-[#F5EFE6] hover:bg-[#C87D32]/10">
+                            Broadcast to Council
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 07 — PARENT PORTAL (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-07"
+              num="07"
+              title="PARENT PORTAL"
+              headline="Keep parents in the loop."
+              description="Attendance timestamps, fee receipts, and school updates."
+              continuityLabel="PORTAL → ADAPTIVE PATH"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c7-1', label: 'Gate Attendance' },
+                { id: 'c7-2', label: 'Fee Receipt' },
+                { id: 'c7-3', label: 'School Circular' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Real-time Attendance Notification'}
+                      {step === 1 && 'STAGE 02: Term Fee Settlement Invoice'}
+                      {step === 2 && 'STAGE 03: Administrative Notice & Circular'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Parent App • Aarav Sharma</span>
+                  </div>
+
+                  {/* Step 0: 01 Gate Attendance */}
+                  {step === 0 && (
+                    <div className="max-w-md mx-auto p-4 rounded-xl border border-emerald-500/30 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs shadow-sm">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                          <span className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            PARENT NOTIFICATION • GATE ENTRY
+                          </span>
+                        </div>
+                        <span className="font-mono text-[9px] text-[#5A6578]">08:14:22 AM IST</span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-950/20 space-y-1.5">
+                        <div className="flex items-center justify-between font-mono text-[10px]">
+                          <span className="font-bold text-emerald-700 dark:text-emerald-400">ARRIVED AT CAMPUS ✓</span>
+                          <span className="text-[#5A6578]">Turnstile #02</span>
+                        </div>
+                        <p className="text-xs text-[#121926] dark:text-[#F5EFE6]">
+                          <strong>Aarav Sharma</strong> checked in at Main North Gate. Biometric facial recognition verified with 99.8% match.
+                        </p>
+                        <div className="text-[10px] font-mono text-[#5A6578] flex items-center justify-between pt-1">
+                          <span>Classroom 204 • Mathematics</span>
+                          <span className="text-emerald-600 font-bold">On Time</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-center font-mono text-[10px]">
+                        <div className="p-2 rounded bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/15">
+                          <span className="text-[#5A6578] block">Monthly Attendance</span>
+                          <span className="font-bold text-[#121926] dark:text-[#F5EFE6] text-xs">98.4% (48/49)</span>
+                        </div>
+                        <div className="p-2 rounded bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 border border-[#C87D32]/15">
+                          <span className="text-[#5A6578] block">Punctuality Score</span>
+                          <span className="font-bold text-emerald-600 text-xs">Top 5% Cohort</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 Fee Receipt */}
+                  {step === 1 && (
+                    <div className="max-w-md mx-auto p-4 rounded-xl border border-emerald-500/30 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs shadow-sm">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            FEES SETTLED • TERM II (2024-25)
+                          </span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          PAID IN FULL ✓
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-950/20 flex items-center justify-between">
+                        <div>
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Amount Settled</span>
+                          <span className="text-xl font-bold font-mono text-[#121926] dark:text-[#F5EFE6]">₹ 45,000.00</span>
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Receipt #REC-2024-8821</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[9px] font-mono text-[#5A6578] block">Payment Channel</span>
+                          <span className="font-bold text-xs text-emerald-600">UPI Instant Autopay</span>
+                          <span className="text-[9px] font-mono text-[#5A6578] block">05-Oct-2024</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 font-mono text-[10px]">
+                        <span className="text-[#5A6578]">Zero Pending Dues for Term II</span>
+                        <span className="text-[#C87D32] underline font-bold cursor-pointer">
+                          Download 80C Tax Receipt ➔
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 School Circular (Screenshot 3) */}
+                  {step === 2 && (
+                    <div className="max-w-lg mx-auto p-4 rounded-xl border border-[#C87D32]/30 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs shadow-sm">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-[#C87D32]" />
+                          <div>
+                            <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                              OFFICE OF THE PRINCIPAL • CIRCULAR #CIR-42
+                            </div>
+                            <div className="font-mono text-[9px] text-[#5A6578]">
+                              Date: 05-Oct-2024 • Delivered to Parent Portal
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-[#C87D32]/10 text-[#C87D32] font-mono text-[9px] font-bold">
+                          ACTION NOTICE
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 p-3 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60">
+                        <h4 className="font-editorial text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          Annual Inter-School Sports Day & Athletic Selection Trials
+                        </h4>
+                        <p className="text-[#526071] dark:text-[#A6B4C9] text-xs leading-relaxed">
+                          Selection trials for Athletics (100m, 400m), Basketball, and Chess commence this Thursday, 10th October at 09:00 AM at the Main Athletics Stadium.
+                        </p>
+                        <div className="text-[10px] font-mono text-[#5A6578] pt-1">
+                          Dress Code: House Sports Uniform • Transport provided from campus gates.
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        <button className="px-3 py-1.5 rounded border border-[#C87D32]/30 text-[#121926] dark:text-[#F5EFE6] font-mono text-[10px] hover:bg-[#C87D32]/10 flex items-center justify-center gap-1.5">
+                          <Calendar className="w-3 h-3 text-[#C87D32]" />
+                          <span>Add to Calendar (10-Oct)</span>
+                        </button>
+                        <button className="px-3 py-1.5 rounded bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-mono text-[10px] font-bold hover:bg-[#C87D32] flex items-center justify-center gap-1.5">
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span>Parent Consent: Approved ✓</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 08 — ADAPTIVE LEARNING (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-08"
+              num="08"
+              title="ADAPTIVE LEARNING"
+              headline="Learning that adapts."
+              description="Dynamic branching paths based on real-time student mastery."
+              continuityLabel="ADAPTIVE PATH → COMPETITIVE PREP"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c8-1', label: 'Diagnostic Problem' },
+                { id: 'c8-2', label: 'Remediation Path' },
+                { id: 'c8-3', label: 'Mastery Accelerated' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Diagnostic Question Evaluated'}
+                      {step === 1 && 'STAGE 02: Dynamic Conceptual Remediation'}
+                      {step === 2 && 'STAGE 03: Accelerated Mastery Unlocked'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Mathematics • Quadratics</span>
+                  </div>
+
+                  {/* Step 0: 01 Diagnostic Problem (Screenshot 4) */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/30 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="font-mono text-[10px] text-[#C87D32] font-bold">
+                          DIAGNOSTIC CHALLENGE 01 • FACTORING MASTERY
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-[9px] font-bold">
+                          MISCONCEPTION FLAGGED
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1">
+                        <span className="text-[9px] font-mono text-[#5A6578] block">Problem Statement:</span>
+                        <div className="font-editorial text-lg sm:text-xl font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          Solve by factoring: 6x² + 11x - 10 = 0
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-rose-400/30 bg-rose-50/15 dark:bg-rose-950/20 space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] font-mono text-rose-600 dark:text-rose-400 font-bold">
+                          <span>Student Handwritten Submission:</span>
+                          <span>(3x - 2)(2x + 5) = 0</span>
+                        </div>
+                        <p className="text-xs text-[#121926] dark:text-[#F5EFE6] leading-relaxed">
+                          <strong>AI Diagnostic:</strong> Student identified correct factors (15 and 4), but reversed the inner bracket signs when factoring out negatives, producing sign confusion on middle term (+11x).
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 font-mono text-[10px]">
+                        <span className="text-[#5A6578]">Zero repetitive drills assigned</span>
+                        <span className="text-[#0284C7] dark:text-[#38BDF8] font-bold">
+                          Triggering Visual Concept Remediation ➔
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 Remediation Path */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10 space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#38BDF8]/20 pb-2">
+                        <div className="font-mono text-[10px] text-[#0284C7] dark:text-[#38BDF8] font-bold">
+                          AI VISUAL REMEDIATION • THE AC-METHOD TILES
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          STEP-BY-STEP REASONING
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center font-mono">
+                        <div className="p-2 rounded-lg bg-[#FAF5EB] dark:bg-[#111A2E] border border-[#38BDF8]/20">
+                          <span className="text-[9px] text-[#5A6578] block">Step 1: Product</span>
+                          <span className="font-bold text-[#121926] dark:text-[#F5EFE6]">a · c = -60</span>
+                          <span className="text-[8px] text-[#5A6578]">6 × (-10)</span>
+                        </div>
+                        <div className="p-2 rounded-lg bg-[#FAF5EB] dark:bg-[#111A2E] border border-[#38BDF8]/20">
+                          <span className="text-[9px] text-[#5A6578] block">Step 2: Factor Pair</span>
+                          <span className="font-bold text-emerald-600">+15 and -4</span>
+                          <span className="text-[8px] text-[#5A6578]">Sum = +11</span>
+                        </div>
+                        <div className="p-2 rounded-lg bg-[#FAF5EB] dark:bg-[#111A2E] border border-[#38BDF8]/20">
+                          <span className="text-[9px] text-[#5A6578] block">Step 3: Grouping</span>
+                          <span className="font-bold text-[#0284C7] dark:text-[#38BDF8]">(2x + 5)(3x - 2)</span>
+                          <span className="text-[8px] text-[#5A6578]">Signs Verified ✓</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2.5 rounded-lg border border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/20 text-xs font-mono text-emerald-800 dark:text-emerald-300">
+                        <span>Solution Confirmed: <strong>x = -5/2</strong> or <strong>x = 2/3</strong>. Geometric sign tile cleared.</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 Mastery Accelerated */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/20 space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+                        <div className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
+                          <Award className="w-4 h-4 text-emerald-600" />
+                          <span>VERIFIED MASTERY UNLOCKED • FAST-TRACK PROGRESS</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold">
+                          98% MASTERY
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-emerald-500/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                        <span className="text-[9px] font-mono text-emerald-600 font-bold block">
+                          🌟 OLYMPIAD-TIER CHALLENGE UNLOCKED (15 Routine Drills Bypassed)
+                        </span>
+                        <div className="font-editorial text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          “Prove that if a, b, c are odd integers, the equation ax² + bx + c = 0 cannot have rational roots.”
+                        </div>
+                        <p className="text-[10px] font-mono text-[#5A6578] pt-1">
+                          Time Saved: 45 mins • Student leapfrogged directly to higher discriminant theory proofs.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 font-mono text-[10px]">
+                        <span className="text-emerald-700 dark:text-emerald-400 font-bold">+250 XP Awarded</span>
+                        <button className="px-3 py-1 rounded bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-mono text-[10px] font-bold">
+                          Launch Olympiad Workspace ➔
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 09 — TUTOR & COMPETITIVE PREP (4 STEPS: 270vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-09"
+              num="09"
+              title="TUTOR & COMPETITIVE PREP"
+              headline="A smarter way to prepare."
+              description="Continuous feedback loops for JEE, NEET, CLAT, and boards."
+              continuityLabel="PREPARATION LOOP → LEGAL JURISPRUDENCE"
+              minHeightClass="min-h-[270vh]"
+              steps={[
+                { id: 'c9-1', label: 'Timed Mock' },
+                { id: 'c9-2', label: 'Speed Analysis' },
+                { id: 'c9-3', label: 'Targeted Drill' },
+                { id: 'c9-4', label: 'Score Leap' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: 30-Minute Timed Mock Exam'}
+                      {step === 1 && 'STAGE 02: AI Speed & Error Bottleneck Flagged'}
+                      {step === 2 && 'STAGE 03: 5 Curated Blindspot Practice Questions'}
+                      {step === 3 && 'STAGE 04: Retake Score Boost Confirmed'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Competitive Prep • Physics</span>
+                  </div>
+
+                  {/* Step 0: 01 Timed Mock */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5 text-[#C87D32] animate-pulse" />
+                          <span className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                            JEE ADVANCED PHYSICS • FULL MOCK 04
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 font-mono">
+                          <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 font-bold text-[10px]">
+                            ⏱ 24:15 REMAINING
+                          </span>
+                          <span className="text-[10px] text-[#5A6578]">Q 14 of 30</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-2">
+                        <p className="font-editorial text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          Question 14: A uniform solid disc of mass M and radius R rolls without slipping down a rough incline of angle θ. Find the linear acceleration of its center of mass.
+                        </p>
+                        <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px] pt-1">
+                          <div className="p-1.5 rounded border border-[#C87D32]/20">(A) g sin θ</div>
+                          <div className="p-1.5 rounded border border-emerald-500 bg-emerald-500/10 font-bold text-emerald-700 dark:text-emerald-400">
+                            (B) 2/3 g sin θ [Selected ✓]
+                          </div>
+                          <div className="p-1.5 rounded border border-[#C87D32]/20">(C) 1/2 g sin θ</div>
+                          <div className="p-1.5 rounded border border-[#C87D32]/20">(D) 3/4 g sin θ</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between font-mono text-[10px]">
+                        <span className="text-[#5A6578]">Negative Marking: -1 for incorrect answer</span>
+                        <div className="flex gap-2">
+                          <button className="px-2.5 py-1 rounded border border-[#C87D32]/30">Mark Review</button>
+                          <button className="px-3 py-1 rounded bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-bold">
+                            Save & Next ➔
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 Speed Analysis */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border border-rose-400/40 bg-rose-50/15 dark:bg-rose-950/20 space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-rose-400/20 pb-2">
+                        <div className="font-mono text-[10px] text-rose-600 dark:text-rose-400 font-bold">
+                          AI TELEMETRY • SECTION TIME-DRAIN AUDIT
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-600 dark:text-rose-300 font-mono text-[9px] font-bold">
+                          BOTTLENECK DETECTED
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 font-mono text-[11px]">
+                        <div>
+                          <div className="flex justify-between text-[10px] pb-0.5">
+                            <span>Kinematics & Mechanics</span>
+                            <span className="text-emerald-600 font-bold">1.1 min/Q (Optimal ✓)</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-emerald-200 dark:bg-emerald-950 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 w-[35%]" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between text-[10px] pb-0.5">
+                            <span>Ray Optics & Waves</span>
+                            <span className="text-emerald-600 font-bold">1.4 min/Q (On Target ✓)</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-emerald-200 dark:bg-emerald-950 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 w-[45%]" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between text-[10px] pb-0.5">
+                            <span className="text-rose-600 dark:text-rose-400 font-bold">Rotational Dynamics & Torque</span>
+                            <span className="text-rose-600 dark:text-rose-400 font-bold">3.8 min/Q (2.5x Time Drain ⚠️)</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-rose-200 dark:bg-rose-950 rounded-full overflow-hidden">
+                            <div className="h-full bg-rose-500 w-[95%]" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-2.5 rounded-lg border border-rose-300 dark:border-rose-900 bg-white/50 dark:bg-black/20 text-xs">
+                        <strong>AI Diagnosis:</strong> Student solves rotational problems correctly (70% accuracy), but spends 3.8 minutes on tedious double integrals instead of applying moment of inertia shortcuts. Drains 22% of total exam clock.
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 Targeted Drill */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-[#38BDF8]/40 bg-[#38BDF8]/5 dark:bg-[#38BDF8]/10 space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#38BDF8]/20 pb-2">
+                        <div className="font-mono text-[10px] text-[#0284C7] dark:text-[#38BDF8] font-bold">
+                          AI TARGETED DRILL • 5 ROTATIONAL DYNAMICS SHORTCUTS
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          5/5 SOLVED
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-[#38BDF8]/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1.5">
+                        <span className="text-[9px] font-mono text-[#0284C7] dark:text-[#38BDF8] font-bold block">
+                          💡 SPEED SHORTCUT INSIGHT:
+                        </span>
+                        <div className="font-editorial text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          Instantaneous Center of Rotation (ICR) Formula:
+                        </div>
+                        <p className="font-mono text-xs text-[#121926] dark:text-[#F5EFE6]">
+                          Apply: a_cm = (g sin θ) / [1 + I_cm/(M R²)]. For solid disc, I_cm = ½MR² ➔ a = ⅔ g sin θ.
+                        </p>
+                        <div className="text-[10px] font-mono text-emerald-600 pt-1">
+                          ✓ Time taken: 42 seconds (Down from 3.8 minutes).
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] font-mono text-[#5A6578] flex items-center justify-between pt-1">
+                        <span>Speed improved by 74% • Zero conceptual confusion</span>
+                        <span className="text-[#0284C7] dark:text-[#38BDF8] font-bold">Launching Cohort Retake ➔</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: 04 Score Leap (Screenshot 5) */}
+                  {step === 3 && (
+                    <div className="p-4 rounded-xl border border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/20 space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+                        <div className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
+                          <TrendingUp className="w-4 h-4 text-emerald-600" />
+                          <span>COMPETITIVE BENCHMARK • RETAKE SCORE LEAP CONFIRMED</span>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold">
+                          +18% PERCENTILE LEAP 🚀
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-center font-mono">
+                        <div className="p-3 rounded-lg border border-emerald-500/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1">
+                          <span className="text-[9px] text-[#5A6578] block">Before Drill</span>
+                          <span className="text-sm font-bold text-rose-500">78th Percentile</span>
+                          <span className="text-[8px] text-[#5A6578]">Score: 162/300</span>
+                        </div>
+
+                        <div className="p-3 rounded-lg border-2 border-emerald-500 bg-emerald-500/10 space-y-1">
+                          <span className="text-[9px] text-emerald-700 dark:text-emerald-400 font-bold block">After Intervention</span>
+                          <span className="text-base font-bold text-emerald-600 dark:text-emerald-300">96th Percentile</span>
+                          <span className="text-[8px] text-emerald-700 dark:text-emerald-400 font-bold">Score: 238/300 (+76)</span>
+                        </div>
+
+                        <div className="p-3 rounded-lg border border-emerald-500/20 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-1 col-span-2 sm:col-span-1">
+                          <span className="text-[9px] text-[#5A6578] block">National Cohort Rank</span>
+                          <span className="text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">Rank #218</span>
+                          <span className="text-[8px] text-emerald-600 font-bold">Jumped 1,624 Ranks</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-emerald-500/20 pt-2 text-[10px] font-mono">
+                        <span className="text-[#5A6578]">Rotational Dynamics Accuracy: 96.2% (Zero Negatives)</span>
+                        <span className="text-emerald-700 dark:text-emerald-400 font-bold underline cursor-pointer">
+                          Download Cohort Telemetry Report ➔
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* CHAPTER 10 — LAW EDUCATION (3 STEPS: 220vh) */}
+            {/* =============================================================== */}
+            <InteractiveChapter
+              id="chapter-10"
+              num="10"
+              title="LAW EDUCATION"
+              headline="Built for legal learning."
+              description="Dedicated legal AI trained on Bare Acts, AIR judgments, and judicial syllabi."
+              continuityLabel="LEGAL FOLIO → CAMPUS CONVERGENCE"
+              minHeightClass="min-h-[220vh]"
+              steps={[
+                { id: 'c10-1', label: 'Landmark Precedent' },
+                { id: 'c10-2', label: 'Ratio Decidendi' },
+                { id: 'c10-3', label: 'Judicial Exam Card' },
+              ]}
+              renderStep={(step) => (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-[#C87D32]/15 text-xs font-mono">
+                    <span className="text-[#C87D32]">
+                      {step === 0 && 'STAGE 01: Constitutional Bench Judgment Sourced'}
+                      {step === 1 && 'STAGE 02: Core Constitutional Doctrine Extracted'}
+                      {step === 2 && 'STAGE 03: Judicial Service Exam Prep Card'}
+                    </span>
+                    <span className="text-[10px] text-[#5A6578]">Bar Council of India Verified</span>
+                  </div>
+
+                  {/* Step 0: 01 Landmark Precedent */}
+                  {step === 0 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Scale className="w-4 h-4 text-[#C87D32]" />
+                          <div>
+                            <div className="font-editorial font-bold text-sm text-[#121926] dark:text-[#F5EFE6]">
+                              SUPREME COURT OF INDIA • CONSTITUTION BENCH REPORT
+                            </div>
+                            <div className="font-mono text-[9px] text-[#5A6578]">
+                              AIR 1973 SC 1461 • (1973) 4 SCC 225
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          13-JUDGE BENCH ✓
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border border-[#C87D32]/15 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1">
+                        <span className="text-[9px] font-mono text-[#5A6578] block">Case Title & Citation:</span>
+                        <div className="font-editorial text-base font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          His Holiness Kesavananda Bharati Sripadagalvaru v. State of Kerala
+                        </div>
+                        <p className="text-[10px] font-mono text-[#5A6578] pt-1">
+                          Presiding: Chief Justice S.M. Sikri • 68-day hearing • Largest bench in Indian judicial history.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between font-mono text-[10px] text-[#5A6578]">
+                        <span>Verified against Supreme Court Reports (SCR)</span>
+                        <span className="text-[#C87D32] underline font-bold">View Bare Act Corpus ➔</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: 02 Ratio Decidendi */}
+                  {step === 1 && (
+                    <div className="p-4 rounded-xl border border-[#C87D32]/25 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="font-mono text-[10px] text-[#C87D32] font-bold">
+                          RATIO DECIDENDI • CORE CONSTITUTIONAL DOCTRINE
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-mono text-[9px] font-bold">
+                          7-6 MAJORITY
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg border-l-4 border-[#C87D32] bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 space-y-1.5">
+                        <div className="font-editorial text-sm font-bold text-[#121926] dark:text-[#F5EFE6]">
+                          The Basic Structure Doctrine (Article 368 Limits)
+                        </div>
+                        <p className="italic text-xs text-[#121926] dark:text-[#F5EFE6] leading-relaxed">
+                          “Parliament’s constituent power under Article 368 does not extend to altering the basic structure or essential framework of the Constitution. Secularism, democracy, rule of law, and judicial review remain unamendable.”
+                        </p>
+                      </div>
+
+                      <div className="text-[10px] font-mono text-[#5A6578] flex items-center justify-between pt-1">
+                        <span>Affirmed in Minerva Mills (1980) & Indira Nehru Gandhi (1975)</span>
+                        <span className="text-emerald-600 font-bold">Doctrine Grounded ✓</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: 03 Judicial Exam Card */}
+                  {step === 2 && (
+                    <div className="p-4 rounded-xl border border-emerald-500/30 bg-[#FAF5EB] dark:bg-[#111A2E] space-y-3 text-xs">
+                      <div className="flex items-center justify-between border-b border-[#C87D32]/15 pb-2">
+                        <div className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
+                          JUDICIAL SERVICE EXAM PREP CARD • CLAT PG / PCS-J
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold">
+                          94% RETENTION SCORE
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 p-3 rounded-lg border border-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-950/20">
+                        <span className="text-[9px] font-mono text-[#5A6578] block">High-Yield Answer Model Rubric:</span>
+                        <div className="space-y-1 font-mono text-[11px] text-[#121926] dark:text-[#F5EFE6]">
+                          <div>✓ 1. Shankari Prasad & Sajjan Singh doctrine of unlimited power (2M)</div>
+                          <div>✓ 2. Golaknath: Fundamental rights given transcendental position (3M)</div>
+                          <div>✓ 3. 24th Amendment validity & Sikri CJ harmonization (3M)</div>
+                          <div>✓ 4. Formulation of Basic Structure limitations (7M)</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 font-mono text-[10px]">
+                        <span className="text-[#5A6578]">Spaced Repetition Active • 42 Cross-Citations</span>
+                        <button className="px-3 py-1 rounded bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-mono text-[10px] font-bold">
+                          Test Legal Recall ➔
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* =============================================================== */}
+            {/* 28. CONVERGENCE FINALE */}
+            {/* =============================================================== */}
+            <section className="pt-12 pb-8 text-center space-y-4">
+              <div className="w-12 h-12 mx-auto rounded-full border-2 border-[#C87D32] flex items-center justify-center bg-[#FAF5EB] dark:bg-[#0E1524] shadow-md">
+                <span className="font-editorial text-xl font-bold text-[#C87D32] dark:text-[#E5A955] italic">
+                  Æ
                 </span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">BCI Sourced ✓</span>
               </div>
-              <div className="font-editorial text-lg font-bold text-[#121926] dark:text-[#F5EFE6]">
-                {lawTab === 'basic_structure' && 'Article 368 constituent limits: Cannot dismantle democratic republic structure.'}
-                {lawTab === 'due_process' && 'Procedure established by law under Art. 21 must be just, fair and reasonable.'}
-                {lawTab === 'judicial_review' && 'Clauses (4) and (5) of Article 368 struck down to protect judicial oversight.'}
+
+              <div className="font-mono text-[10px] tracking-widest text-[#C87D32] uppercase">
+                AI-EDUCATION OPERATING SYSTEM
               </div>
-              <p className="italic text-[#526071] dark:text-[#A6B4C9] leading-relaxed text-xs">
-                {lawTab === 'basic_structure' && 'Precedent applied across 42 constitutional bench judgments; essential syllabus milestone for judicial service aspirants.'}
-                {lawTab === 'due_process' && 'Expanded fundamental rights ambit to encompass dignity, privacy, and humane penal treatment.'}
-                {lawTab === 'judicial_review' && 'Restored unamendability of fundamental rights balance versus directive principles.'}
+
+              <h2 className="font-editorial text-3xl sm:text-5xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight">
+                One campus. <br />
+                <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
+                  One intelligent system.
+                </span>
+              </h2>
+
+              <p className="text-sm text-[#526071] dark:text-[#A6B4C9] font-sans max-w-md mx-auto">
+                10 connected capabilities working seamlessly as your digital campus infrastructure.
               </p>
-            </div>
 
-          </div>
-        </section>
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  onClick={onOpenDemo}
+                  className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-editorial text-sm font-bold italic tracking-wide hover:bg-[#C87D32] hover:text-white transition-all shadow-md flex items-center justify-center gap-2 group"
+                >
+                  <span>Book a Demo</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </button>
 
-        {/* ======================================================================= */}
-        {/* 28. CONVERGENCE FINALE: One campus. One intelligent system. */}
-        {/* All 10 chapter lines converge toward center */}
-        {/* ======================================================================= */}
-        <section className="pt-28 pb-16 text-center space-y-6 relative">
-          
-          {/* Animated 10 convergence lines into central emblem */}
-          <div className="relative w-48 h-20 mx-auto flex items-center justify-center">
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 80">
-              {/* 5 lines from left, 5 lines from right */}
-              <line x1="10" y1="10" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-              <line x1="10" y1="25" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-              <line x1="10" y1="40" x2="100" y2="40" stroke="#C87D32" strokeWidth="1.5" strokeOpacity="0.6" />
-              <line x1="10" y1="55" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-              <line x1="10" y1="70" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
+                <button
+                  onClick={() => onNavigate('home')}
+                  className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#C87D32]/50 hover:border-[#C87D32] text-[#121926] dark:text-[#F5EFE6] font-editorial text-sm italic hover:bg-[#FAF5EB]/60 dark:hover:bg-[#111A2E]/60 transition-all"
+                >
+                  <span>Explore Campus Home</span>
+                </button>
+              </div>
+            </section>
 
-              <line x1="190" y1="10" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-              <line x1="190" y1="25" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-              <line x1="190" y1="40" x2="100" y2="40" stroke="#C87D32" strokeWidth="1.5" strokeOpacity="0.6" />
-              <line x1="190" y1="55" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-              <line x1="190" y1="70" x2="100" y2="40" stroke="#C87D32" strokeWidth="1" strokeOpacity="0.4" />
-            </svg>
-
-            {/* Central Seal */}
-            <div className="w-14 h-14 rounded-full border-2 border-[#C87D32] flex items-center justify-center bg-[#FAF5EB] dark:bg-[#0E1524] shadow-lg relative z-10">
-              <span className="font-editorial text-2xl font-bold text-[#C87D32] dark:text-[#E5A955] italic">
-                Æ
-              </span>
-            </div>
-          </div>
-
-          <div className="font-mono text-xs tracking-widest text-[#C87D32] uppercase">
-            AI-EDUCATION OPERATING SYSTEM
-          </div>
-
-          <h2 className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight">
-            One campus. <br />
-            <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
-              One intelligent system.
-            </span>
-          </h2>
-
-          <p className="text-base text-[#526071] dark:text-[#A6B4C9] font-sans max-w-lg mx-auto">
-            10 connected capabilities working seamlessly as your digital campus infrastructure.
-          </p>
-
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={onOpenDemo}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-editorial text-base font-bold italic tracking-wide hover:bg-[#C87D32] hover:text-white transition-all duration-300 shadow-md flex items-center justify-center gap-2 group"
-            >
-              <span>Book a Demo</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            <button
-              onClick={() => onNavigate('home')}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-[#C87D32]/50 hover:border-[#C87D32] text-[#121926] dark:text-[#F5EFE6] font-editorial text-base italic hover:bg-[#FAF5EB]/60 dark:hover:bg-[#111A2E]/60 transition-all duration-300"
-            >
-              <span>Explore Campus Home</span>
-            </button>
-          </div>
-
-        </section>
-
+          </main>
+        </div>
       </div>
 
     </div>
