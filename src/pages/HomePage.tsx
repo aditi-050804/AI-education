@@ -1,108 +1,98 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Activity } from 'lucide-react';
 import type { PageId } from '../types';
 import { Scene01Hero } from '../components/vintage/Scene01Hero';
 import { Scene02BlueprintOperations } from '../components/vintage/Scene02BlueprintOperations';
-import { Scene03FragmentedToConnected } from '../components/vintage/Scene03FragmentedToConnected';
-import { Scene04YourPeople } from '../components/vintage/Scene04YourPeople';
-import { Scene05StudyBuddy } from '../components/vintage/Scene05StudyBuddy';
-import { Scene06SmartTimetable } from '../components/vintage/Scene06SmartTimetable';
-import { Scene07FinanceTally } from '../components/vintage/Scene07FinanceTally';
-import { Scene08ExamsReportCard } from '../components/vintage/Scene08ExamsReportCard';
-import { Scene09ParentConnection } from '../components/vintage/Scene09ParentConnection';
-import { Scene10IntelligentCampus } from '../components/vintage/Scene10IntelligentCampus';
-import { Scene11Implementation } from '../components/vintage/Scene11Implementation';
-import { Scene12SecurityTeaser } from '../components/vintage/Scene12SecurityTeaser';
-import { Scene13PricingTeaser } from '../components/vintage/Scene13PricingTeaser';
-import { Scene14FAQ } from '../components/vintage/Scene14FAQ';
-import { Scene15FinalCTA } from '../components/vintage/Scene15FinalCTA';
+import { HomeTransformationMatrix } from '../components/home/HomeTransformationMatrix';
+import { HomeCampusEngine } from '../components/home/HomeCampusEngine';
+import { HomeRolePerspectives } from '../components/home/HomeRolePerspectives';
+import { HomeSecurityTeaser } from '../components/home/HomeSecurityTeaser';
+import { HomeDeploymentPricing } from '../components/home/HomeDeploymentPricing';
+import { HomeFAQAndCTA } from '../components/home/HomeFAQAndCTA';
+import { ScrollReveal, RevealItem } from '../components/common/ScrollReveal';
 
 interface HomePageProps {
-    onNavigate: (page: PageId) => void;
-    onOpenDemo: () => void;
+  onNavigate: (page: PageId) => void;
+  onOpenDemo: () => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDemo }) => {
-    const scrollToNext = () => {
-        const el = document.getElementById('scene-02');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-    };
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    return (
-        <div className="w-full">
-            {/* =========================================================================
-          HERO SECTION (LOCKED — EXACTLY AS IT IS)
-      ========================================================================= */}
-            <Scene01Hero onOpenDemo={onOpenDemo} onExplore={scrollToNext} />
+  const scrollToNext = () => {
+    const el = document.getElementById('scene-02');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
-            {/* =========================================================================
-          SECTION 01 — ONE CAMPUS. EVERY OPERATION. (Architectural Blueprint)
-      ========================================================================= */}
-            <Scene02BlueprintOperations />
+  const institutionalStats = [
+    { label: 'Campuses Active', value: '45+', sub: 'CBSE, ICSE & IB Schools' },
+    { label: 'Live Learners', value: '1,20,000+', sub: 'Sovereign data records' },
+    { label: 'Proxy Matching', value: '0.04s', sub: '99.8% syllabus accuracy' },
+    { label: 'Tally Transactions', value: '₹380 Cr+', sub: 'Zero ledger discrepancy' },
+  ];
 
-            {/* =========================================================================
-          SECTION 02 — FROM FRAGMENTED TO CONNECTED (Transformation Matrix)
-      ========================================================================= */}
-            <Scene03FragmentedToConnected />
+  return (
+    <div ref={containerRef} className="w-full relative overflow-x-clip">
+      {/* SECTION 01: HERO SECTION (LOCKED & PRESERVED) */}
+      <Scene01Hero onOpenDemo={onOpenDemo} onExplore={scrollToNext} />
 
-            {/* =========================================================================
-          SECTION 03 — YOUR CAMPUS, YOUR PEOPLE (Adaptive Role Perspectives)
-      ========================================================================= */}
-            <Scene04YourPeople />
+      {/* SPACE AFTER HERO */}
+      <div className="h-10 sm:h-16 w-full" />
 
-            {/* =========================================================================
-          SECTION 04 — AI STUDY BUDDY (Curriculum Grounding & Citations)
-      ========================================================================= */}
-            <Scene05StudyBuddy />
+      {/* SECTION 02: ONE CAMPUS. EVERY OPERATION. BLUEPRINT (PRESERVED) */}
+      <Scene02BlueprintOperations />
 
-            {/* =========================================================================
-          SECTION 05 — SMART TIMETABLE (Autonomous Proxy Allocation)
-      ========================================================================= */}
-            <Scene06SmartTimetable />
-
-            {/* =========================================================================
-          SECTION 06 — FINANCE + TALLY (2-Way Real-Time Ledger Sync)
-      ========================================================================= */}
-            <Scene07FinanceTally />
-
-            {/* =========================================================================
-          SECTION 07 — EXAMS TO REPORT CARD (Continuous Assessment Lifecycle)
-      ========================================================================= */}
-            <Scene08ExamsReportCard />
-
-            {/* =========================================================================
-          SECTION 08 — PARENT CONNECTION (Multi-Child Portal)
-      ========================================================================= */}
-            <Scene09ParentConnection />
-
-            {/* =========================================================================
-          SECTION 09 — THE INTELLIGENT CAMPUS (Panoramic Synthesis)
-      ========================================================================= */}
-            <Scene10IntelligentCampus />
-
-            {/* =========================================================================
-          SECTION 10 — 14-DAY IMPLEMENTATION (Zero Downtime Roadmap)
-      ========================================================================= */}
-            <Scene11Implementation />
-
-            {/* =========================================================================
-          SECTION 11 — SECURITY TEASER (Institutional Sovereign Vault)
-      ========================================================================= */}
-            <Scene12SecurityTeaser onNavigate={onNavigate} />
-
-            {/* =========================================================================
-          SECTION 12 — PRICING TEASER (Transparent Institutional Roll)
-      ========================================================================= */}
-            <Scene13PricingTeaser onNavigate={onNavigate} />
-
-            {/* =========================================================================
-          SECTION 13 — FAQ (Essential Inquiries)
-      ========================================================================= */}
-            <Scene14FAQ />
-
-            {/* =========================================================================
-          SECTION 14 — FINAL CTA (Illuminated Campus Invitation)
-      ========================================================================= */}
-            <Scene15FinalCTA onOpenDemo={onOpenDemo} onNavigate={onNavigate} />
+      {/* INSTITUTIONAL IMPACT TICKER WITH SMOOTH SCROLL ANIMATION */}
+      <ScrollReveal
+        as="section"
+        yOffset={35}
+        duration={0.7}
+        className="border-y border-[#C87D32]/20 bg-[#FAF5EB]/60 dark:bg-[#070B13]/60 py-6 relative z-10"
+      >
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 font-sans text-xs">
+            {institutionalStats.map((st, i) => (
+              <RevealItem
+                key={i}
+                index={i}
+                staggerDelay={0.08}
+                baseDelay={0.05}
+                className="space-y-1"
+              >
+                <div className="flex items-center gap-1.5 text-xs text-[#C87D32] font-bold uppercase tracking-wider">
+                  <Activity className="w-3 h-3 animate-pulse" />
+                  <span>{st.label}</span>
+                </div>
+                <div className="font-serif text-2xl sm:text-3xl font-bold text-[#121926] dark:text-[#F5EFE6]">
+                  {st.value}
+                </div>
+                <div className="text-xs text-[#526071] dark:text-[#A6B4C9]">
+                  {st.sub}
+                </div>
+              </RevealItem>
+            ))}
+          </div>
         </div>
-    );
+      </ScrollReveal>
+
+      {/* SECTION 03: THE INSTITUTIONAL TRANSFORMATION */}
+      <HomeTransformationMatrix onNavigate={onNavigate} />
+
+      {/* SECTION 04: INTERACTIVE CAMPUS OPERATING ENGINE */}
+      <HomeCampusEngine onNavigate={onNavigate} />
+
+      {/* SECTION 05: ADAPTIVE ROLE PERSPECTIVES */}
+      <HomeRolePerspectives onNavigate={onNavigate} />
+
+      {/* SECTION 06: SOVEREIGN SECURITY & ARCHITECTURE */}
+      <HomeSecurityTeaser onNavigate={onNavigate} />
+
+      {/* SECTION 07: 14-DAY IMPLEMENTATION & ROADMAP */}
+      <HomeDeploymentPricing onNavigate={onNavigate} onOpenDemo={onOpenDemo} />
+
+      {/* SECTION 08: ESSENTIAL INQUIRIES (FAQ) & FINAL CTA */}
+      <HomeFAQAndCTA onOpenDemo={onOpenDemo} onNavigate={onNavigate} />
+    </div>
+  );
 };

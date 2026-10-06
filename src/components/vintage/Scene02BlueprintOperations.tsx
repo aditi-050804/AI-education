@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, Sparkles, Building2, Cpu, GraduationCap, Coins, Users, BookOpen, HeartHandshake } from 'lucide-react';
+import {
+  RevealEyebrow,
+  RevealHeading,
+  RevealDescription,
+  RevealVisual,
+  RevealCTA
+} from '../common/ScrollReveal';
 
 interface BuildingNode {
   id: string;
@@ -40,31 +47,37 @@ export const Scene02BlueprintOperations: React.FC = () => {
   const centerNode = { x: 500, y: 310 };
 
   return (
-    <section id="scene-02" className="relative py-20 px-6 bg-[#F8F4EB] dark:bg-[#060B14] border-t border-amber-900/20 dark:border-amber-400/20 transition-colors duration-500 overflow-hidden font-serif">
-      
+    <section id="scene-02" className="relative py-12 sm:py-16 px-6 bg-[#F8F4EB] dark:bg-[#060B14] border-t border-amber-900/20 dark:border-amber-400/20 transition-colors duration-500 overflow-hidden font-serif">
+
       {/* Vintage Blueprint Background Grid */}
       <div className="absolute inset-0 opacity-[0.035] dark:opacity-[0.05] pointer-events-none bg-[radial-gradient(#161D2B_1px,transparent_1px)] dark:bg-[radial-gradient(#FAF6EE_1px,transparent_1px)] [background-size:24px_24px]" />
 
-      <div className="max-w-7xl mx-auto w-full relative z-10 space-y-10">
-        
+      <div className="max-w-6xl mx-auto w-full relative z-10 space-y-6 sm:space-y-8">
+
         {/* Editorial Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-2 border-amber-900/20 dark:border-amber-400/20 pb-8">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-amber-900 dark:text-amber-400 font-bold">
-              <Compass className="w-4 h-4 text-amber-700 dark:text-amber-400 animate-spin-slow" />
-              <span>01 / ARCHITECTURAL BLUEPRINT</span>
-            </div>
-            <h2 className="text-4xl sm:text-6xl font-bold tracking-tight text-slate-950 dark:text-slate-50">
-              One campus. <br />
-              <span className="italic font-normal text-amber-900 dark:text-amber-300">Every operation.</span>
-            </h2>
-            <p className="text-lg sm:text-xl font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
-              Bring academics, finance, learning and communication together.
-            </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-amber-900/20 dark:border-amber-400/20 pb-5">
+          <div className="space-y-1.5 max-w-2xl">
+            <RevealEyebrow>
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-amber-900 dark:text-amber-400 font-bold">
+                <Compass className="w-4 h-4 text-amber-700 dark:text-amber-400 animate-spin-slow" />
+                <span>01 / ARCHITECTURAL BLUEPRINT</span>
+              </div>
+            </RevealEyebrow>
+            <RevealHeading>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-950 dark:text-slate-50 leading-tight">
+                One campus. <br />
+                <span className="italic font-normal text-amber-900 dark:text-amber-300">Every operation.</span>
+              </h2>
+            </RevealHeading>
+            <RevealDescription>
+              <p className="text-sm sm:text-base font-medium text-slate-700 dark:text-slate-300 leading-relaxed">
+                Bring academics, finance, learning and communication together.
+              </p>
+            </RevealDescription>
           </div>
 
           {/* Interactive Step / Auto Controller */}
-          <div className="flex flex-wrap items-center gap-3">
+          <RevealCTA className="flex flex-wrap items-center gap-3">
             <div className="px-4 py-2 rounded-full border border-amber-900/30 dark:border-amber-400/30 bg-[#FAF6EE] dark:bg-[#0C1424] text-xs font-mono font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>CONNECTED: {activeStep} / {BUILDINGS.length} DEPARTMENTS</span>
@@ -78,22 +91,17 @@ export const Scene02BlueprintOperations: React.FC = () => {
             >
               {autoRotate ? '⏸ PAUSE SEQUENCE' : '▶ AUTO TOUR'}
             </button>
-          </div>
+          </RevealCTA>
         </div>
 
         {/* Blueprint Visual Composition (Card Frame Removed - Organic Seamless Flow) */}
-        <div className="relative w-full py-2 overflow-hidden">
-          
-          {/* Blueprint Drafting Markings */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center font-mono text-[10px] text-amber-900/60 dark:text-amber-400/60 uppercase tracking-widest pb-3 border-b border-amber-900/20 dark:border-amber-400/20 gap-1">
-            <span>SHEET NO: ARCH-2026-CAMPUS • SCALE: 1:1 UNIFIED ENGINE • REVISION IV</span>
-            <span>CAMPUS COORDINATE GRID: 500-N / 310-E</span>
-          </div>
+        <RevealVisual className="relative w-full py-2 overflow-hidden">
 
-          {/* SVG Blueprint Canvas */}
-          <div className="relative w-full aspect-[16/9] max-h-[580px] min-h-[400px]">
+
+          {/* SVG Blueprint Canvas - Scaled Down & Balanced */}
+          <div className="relative w-full aspect-[16/8.5] max-h-[410px] min-h-[280px] max-w-4xl mx-auto">
             <svg viewBox="0 0 1000 600" className="w-full h-full select-none" fill="none">
-              
+
               <defs>
                 {/* Blueprint Line Pattern */}
                 <pattern id="blueprintGrid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -176,7 +184,7 @@ export const Scene02BlueprintOperations: React.FC = () => {
               <g transform={`translate(${centerNode.x}, ${centerNode.y})`} className="cursor-pointer" onClick={() => setSelectedBuilding(null)}>
                 <circle r="72" fill="#FAF6EE" className="dark:fill-[#080E1C]" stroke="#C5A059" strokeWidth="2.5" filter="url(#coreGlow)" />
                 <circle r="60" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" className="text-sky-500 animate-spin-slow" />
-                
+
                 <text textAnchor="middle" y="-14" className="font-mono text-[11px] font-bold fill-sky-700 dark:fill-sky-300 tracking-widest">
                   CORE ENGINE
                 </text>
@@ -193,7 +201,7 @@ export const Scene02BlueprintOperations: React.FC = () => {
                 const isActive = idx < activeStep;
                 const isSelected = selectedBuilding?.id === b.id;
                 const IconComponent = b.icon;
-                
+
                 return (
                   <g
                     key={b.id}
@@ -219,13 +227,12 @@ export const Scene02BlueprintOperations: React.FC = () => {
                     {/* Node Circle Background */}
                     <circle
                       r="28"
-                      className={`transition-all duration-300 ${
-                        isSelected
+                      className={`transition-all duration-300 ${isSelected
                           ? 'fill-amber-900 dark:fill-amber-400 stroke-amber-900 dark:stroke-amber-400 shadow-xl'
                           : isActive
-                          ? 'fill-[#FAF6EE] dark:fill-[#0F1A2E] stroke-amber-700 dark:stroke-amber-400'
-                          : 'fill-[#FAF6EE]/50 dark:fill-[#0F1A2E]/50 stroke-slate-400/30 opacity-40'
-                      }`}
+                            ? 'fill-[#FAF6EE] dark:fill-[#0F1A2E] stroke-amber-700 dark:stroke-amber-400'
+                            : 'fill-[#FAF6EE]/50 dark:fill-[#0F1A2E]/50 stroke-slate-400/30 opacity-40'
+                        }`}
                       strokeWidth="2"
                     />
 
@@ -233,13 +240,12 @@ export const Scene02BlueprintOperations: React.FC = () => {
                     <foreignObject x="-16" y="-16" width="32" height="32" className="pointer-events-none">
                       <div className="w-full h-full flex items-center justify-center">
                         <IconComponent
-                          className={`w-5 h-5 transition-colors ${
-                            isSelected
+                          className={`w-5 h-5 transition-colors ${isSelected
                               ? 'text-white dark:text-slate-950 stroke-[2.5]'
                               : isActive
-                              ? 'text-amber-800 dark:text-amber-300 stroke-[2.2]'
-                              : 'text-slate-400 dark:text-slate-500 stroke-[1.8]'
-                          }`}
+                                ? 'text-amber-800 dark:text-amber-300 stroke-[2.2]'
+                                : 'text-slate-400 dark:text-slate-500 stroke-[1.8]'
+                            }`}
                         />
                       </div>
                     </foreignObject>
@@ -248,11 +254,10 @@ export const Scene02BlueprintOperations: React.FC = () => {
                     <text
                       textAnchor="middle"
                       y="46"
-                      className={`font-serif text-xs sm:text-sm font-bold transition-colors ${
-                        isActive
+                      className={`font-serif text-xs sm:text-sm font-bold transition-colors ${isActive
                           ? 'fill-slate-950 dark:fill-slate-50 font-bold'
                           : 'fill-slate-400 dark:fill-slate-600'
-                      }`}
+                        }`}
                     >
                       {b.name}
                     </text>
@@ -273,12 +278,12 @@ export const Scene02BlueprintOperations: React.FC = () => {
           </div>
 
           {/* Interactive Inspector Strip for Selected / Active Building */}
-          <div className="mt-6 pt-5 border-t border-amber-900/20 dark:border-amber-400/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <span className="font-mono text-xs font-bold tracking-widest text-amber-900 dark:text-amber-400 uppercase">
+          <div className="mt-4 pt-3.5 border-t border-amber-900/20 dark:border-amber-400/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <span className="font-mono text-[11px] font-bold tracking-widest text-amber-900 dark:text-amber-400 uppercase">
                 {selectedBuilding ? `SELECTED BUILDING: ${selectedBuilding.name.toUpperCase()}` : 'CAMPUS CONNECTIVITY PULSE'}
               </span>
-              <p className="font-serif text-base sm:text-lg font-bold text-slate-950 dark:text-slate-50">
+              <p className="font-serif text-sm sm:text-base font-bold text-slate-950 dark:text-slate-50">
                 {selectedBuilding ? selectedBuilding.details : 'All 7 institutional divisions synchronize continuous data streams through the central AI-Education hub.'}
               </p>
             </div>
@@ -290,7 +295,7 @@ export const Scene02BlueprintOperations: React.FC = () => {
             </div>
           </div>
 
-        </div>
+        </RevealVisual>
 
       </div>
     </section>

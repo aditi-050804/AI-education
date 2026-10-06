@@ -12,6 +12,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 import type { PageId } from '../types';
+import {
+  RevealEyebrow,
+  RevealHeading,
+  RevealDescription,
+  RevealVisual,
+  RevealCTA,
+  RevealItem
+} from '../components/common/ScrollReveal';
 
 interface SolutionsPageProps {
   onOpenDemo: () => void;
@@ -23,14 +31,6 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
   const [activeSignalIndex, setActiveSignalIndex] = useState<number>(0);
   const [hoveredRailNode, setHoveredRailNode] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Parallax for subtle watermark typography
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
-
-  const watermarkY = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
   // Telemetry loop for Connected Campus Ecosystem rail
   useEffect(() => {
@@ -296,73 +296,41 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
         {/* Vintage Left & Right Hairline Margins */}
         <div className="hidden lg:block absolute top-0 bottom-0 left-12 w-[1px] bg-rose-400/20 dark:bg-rose-500/10" />
         <div className="hidden lg:block absolute top-0 bottom-0 right-12 w-[1px] bg-[#C87D32]/10" />
-
-        {/* Archival Blueprint Annotations */}
-        <div className="hidden lg:block absolute top-36 left-16 text-[9px] font-mono text-[#C87D32]/40 tracking-widest">
-          + BLUEPRINT SPEC // SOL-ARCH-2026 // OXFORD EDITORIAL
-        </div>
-        <div className="hidden lg:block absolute top-36 right-16 text-[9px] font-mono text-[#C87D32]/40 tracking-widest">
-          AI-EDUCATION OPERATING SYSTEM // V3.4 +
-        </div>
-      </div>
-
-      {/* Parallax Background Watermark */}
-      <div className="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-center">
-        <motion.div
-          style={{ y: watermarkY }}
-          className="w-full flex items-center justify-center"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current.watermark}
-              initial={{ opacity: 0, scale: 0.98, y: 15 }}
-              animate={{ opacity: 0.035, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 1.01, y: -15 }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
-              className="font-editorial text-[20vw] font-bold tracking-widest text-[#121926] dark:text-[#F5EFE6] leading-none uppercase text-center px-4 select-none"
-            >
-              {current.watermark}
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
       </div>
 
       {/* ===================================================================== */}
       {/* 2. HERO — CINEMATIC EDITORIAL HERO (NO BOXES)                         */}
       {/* ===================================================================== */}
-      <section className="pt-36 pb-16 px-6 max-w-4xl mx-auto text-center space-y-5 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#5A6578] dark:text-[#9DA9BE]"
-        >
-          <span className="w-2 h-2 rounded-full bg-[#C87D32]" />
-          <span className="font-mono text-[11px] text-[#C87D32] dark:text-[#E5A955] tracking-widest">
-            INSTITUTIONAL SOLUTIONS
-          </span>
-        </motion.div>
+      <section className="relative w-full overflow-hidden pt-32 sm:pt-36 pb-24 sm:pb-32 lg:pb-36 px-6 text-center">
+        {/* Background Watermark (Hero Section Only) */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-center">
+          <div className="font-serif text-[18vw] lg:text-[20vw] font-bold tracking-widest text-[#121926] dark:text-[#F5EFE6] leading-none uppercase text-center px-4 select-none opacity-[0.07] dark:opacity-[0.09]">
+            SOLUTIONS
+          </div>
+        </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
-          className="font-editorial text-5xl sm:text-7xl lg:text-8xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-[1.05] tracking-tight"
-        >
-          One platform. <br />
-          <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
-            Built around how you operate.
-          </span>
-        </motion.h1>
+        <div className="max-w-6xl mx-auto space-y-6 relative z-10">
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
+            className="font-editorial text-5xl sm:text-7xl lg:text-8xl xl:text-[90px] font-bold text-[#121926] dark:text-[#F5EFE6] leading-[1.05] tracking-tight"
+          >
+            One platform. <br />
+            <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
+              Built around how you operate.
+            </span>
+          </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="text-lg sm:text-xl text-[#526071] dark:text-[#A6B4C9] font-sans max-w-2xl mx-auto leading-relaxed pt-2"
-        >
-          One intelligent campus system, adapted to schools, universities, legal institutions, exam academies and independent educators.
-        </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-lg sm:text-xl text-[#526071] dark:text-[#A6B4C9] font-sans max-w-3xl mx-auto leading-relaxed pt-2"
+          >
+            One intelligent campus system, adapted to schools, universities, legal institutions, exam academies and independent educators.
+          </motion.p>
+        </div>
       </section>
 
       {/* ===================================================================== */}
@@ -372,28 +340,26 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
         aria-label="Institution Navigation"
         className="sticky top-16 z-30 py-3.5 bg-[#F8F4EB]/90 dark:bg-[#060B14]/90 backdrop-blur-md border-y border-[#C87D32]/15 shadow-sm transition-colors duration-300"
       >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between overflow-x-auto pb-1 scrollbar-none font-mono text-xs gap-4 sm:gap-6">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+          <div className="flex items-center justify-between overflow-x-auto pb-1 scrollbar-none font-mono text-xs gap-4 sm:gap-8">
             {institutions.map((inst, idx) => {
               const isActive = selectedInst === idx;
               return (
                 <button
                   key={inst.num}
                   onClick={() => setSelectedInst(idx)}
-                  className={`group relative py-1 shrink-0 flex items-center gap-2 transition-all focus:outline-none ${
-                    isActive
-                      ? 'text-[#121926] dark:text-[#F5EFE6] font-bold'
-                      : 'text-[#5A6578] dark:text-[#9DA9BE] hover:text-[#121926] dark:hover:text-[#F5EFE6]'
-                  }`}
+                  className={`group relative py-1 shrink-0 flex items-center gap-2 transition-all focus:outline-none ${isActive
+                    ? 'text-[#121926] dark:text-[#F5EFE6] font-bold'
+                    : 'text-[#5A6578] dark:text-[#9DA9BE] hover:text-[#121926] dark:hover:text-[#F5EFE6]'
+                    }`}
                 >
                   <span
-                    className={`text-[10px] transition-colors ${
-                      isActive ? 'text-[#C87D32] dark:text-[#E5A955] font-bold' : 'text-[#5A6578]/50'
-                    }`}
+                    className={`text-[10px] transition-colors ${isActive ? 'text-[#C87D32] dark:text-[#E5A955] font-bold' : 'text-[#5A6578]/50'
+                      }`}
                   >
                     {inst.num}
                   </span>
-                  <span className="tracking-wide text-xs sm:text-[13px] font-serif whitespace-nowrap">
+                  <span className="tracking-wide text-xs sm:text-[14px] font-serif whitespace-nowrap">
                     {inst.title}
                   </span>
 
@@ -414,7 +380,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
       {/* ===================================================================== */}
       {/* 4 & 5. MAIN GUIDED EDITORIAL EXPERIENCE — "LIVING INSTITUTION"        */}
       {/* ===================================================================== */}
-      <main className="max-w-5xl mx-auto px-6 py-20 relative z-10">
+      <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 relative z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={current.num}
@@ -426,34 +392,40 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
           >
             {/* Top Composition: Left Thesis + Right Architecture Flow Diagram */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start border-b border-[#C87D32]/15 pb-20">
-              
+
               {/* Left Side: Editorial Heading & Thesis */}
               <div className="lg:col-span-6 space-y-5">
-                <span className="font-mono text-xs text-[#C87D32] dark:text-[#E5A955] uppercase tracking-wider block">
-                  {current.eyebrow}
-                </span>
+                <RevealEyebrow>
+                  <span className="font-mono text-xs text-[#C87D32] dark:text-[#E5A955] uppercase tracking-wider block">
+                    {current.eyebrow}
+                  </span>
+                </RevealEyebrow>
 
-                <h2 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-[1.08]">
-                  {current.headline}
-                </h2>
+                <RevealHeading>
+                  <h2 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-[1.08]">
+                    {current.headline}
+                  </h2>
+                </RevealHeading>
 
-                <p className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans leading-relaxed pt-2">
-                  {current.subtitle}
-                </p>
+                <RevealDescription>
+                  <p className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans leading-relaxed pt-2">
+                    {current.subtitle}
+                  </p>
+                </RevealDescription>
 
-                <div className="pt-4">
+                <RevealCTA className="pt-4">
                   <button
                     onClick={onOpenDemo}
-                    className="inline-flex items-center gap-2 text-sm font-editorial font-bold italic text-[#121926] dark:text-[#F5EFE6] border-b border-[#C87D32] pb-0.5 hover:text-[#C87D32] transition-colors group"
+                    className="inline-flex items-center gap-2 text-sm font-editorial font-bold italic text-[#121926] dark:text-[#F5EFE6] border-b border-[#C87D32] pb-0.5 hover:text-[#C87D32] transition-colors group cursor-pointer"
                   >
                     <span>Request Institutional Walkthrough</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
                   </button>
-                </div>
+                </RevealCTA>
               </div>
 
               {/* Right Side: Subtle Animated Operating System Flow Map (ZERO CARDS!) */}
-              <div className="lg:col-span-6 space-y-4 font-mono text-xs">
+              <RevealVisual className="lg:col-span-6 space-y-4 font-mono text-xs">
                 <div className="flex items-center justify-between text-[11px] text-[#C87D32] border-b border-[#C87D32]/20 pb-2">
                   <span className="font-bold uppercase tracking-wider flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5" />
@@ -496,21 +468,23 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
                 <div className="pt-2 text-[10px] text-[#5A6578] dark:text-[#9DA9BE] border-t border-[#C87D32]/10">
                   Data streams continuously through single campus bus without manual exports or spreadsheet reconciliations.
                 </div>
-              </div>
+              </RevealVisual>
             </div>
 
             {/* Bottom: Inline Capability Reveals (Large numbers, thin vertical rules, NO CARDS!) */}
             <div className="space-y-8">
-              <div className="flex items-center justify-between font-mono text-xs text-[#C87D32] border-b border-[#C87D32]/20 pb-2">
-                <span className="font-bold uppercase tracking-wider">
-                  CORE SYSTEM CAPABILITIES • INLINE REVEAL
-                </span>
-                <span className="text-[10px] text-[#5A6578]">Zero Rectangular Clutter</span>
-              </div>
+              <RevealEyebrow>
+                <div className="flex items-center justify-between font-mono text-xs text-[#C87D32] border-b border-[#C87D32]/20 pb-2">
+                  <span className="font-bold uppercase tracking-wider">
+                    CORE SYSTEM CAPABILITIES • INLINE REVEAL
+                  </span>
+                  <span className="text-[10px] text-[#5A6578]">Zero Rectangular Clutter</span>
+                </div>
+              </RevealEyebrow>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
-                {current.capabilities.map((cap) => (
-                  <div key={cap.num} className="space-y-3 border-l-2 border-[#C87D32]/30 pl-4 py-1">
+                {current.capabilities.map((cap, idx) => (
+                  <RevealItem key={cap.num} index={idx} baseDelay={0.12} className="space-y-3 border-l-2 border-[#C87D32]/30 pl-4 py-1">
                     <span className="font-editorial text-2xl sm:text-3xl font-bold text-[#C87D32] dark:text-[#E5A955] block">
                       {cap.num}
                     </span>
@@ -527,7 +501,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
                     <span className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block pt-1">
                       STATUS: {cap.status} ✓
                     </span>
-                  </div>
+                  </RevealItem>
                 ))}
               </div>
             </div>
@@ -540,14 +514,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
       {/* 8. CONNECTED CAMPUS ECOSYSTEM — REFINED HORIZONTAL EDITORIAL RAIL    */}
       {/* ===================================================================== */}
       <section className="relative py-24 sm:py-32 px-4 sm:px-8 border-t border-[#C87D32]/15 overflow-hidden">
-        {/* Subtle Oversized Watermark Typography */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
-          <span className="font-editorial text-[16vw] font-bold tracking-[0.18em] text-[#121926]/[0.03] dark:text-[#F5EFE6]/[0.025] uppercase leading-none">
-            CONNECTED
-          </span>
-        </div>
-
-        <div className="max-w-6xl mx-auto relative z-10 space-y-12">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 relative z-10 space-y-12">
           {/* Top Header: Technical Editorial Layout */}
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 pb-4 border-b border-[#121926]/10 dark:border-[#F5EFE6]/10 font-mono text-xs">
             <div className="flex flex-wrap items-center gap-2">
@@ -605,13 +572,12 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
                         {/* Dot on the horizontal rail */}
                         <div className="relative flex items-center justify-center w-3 h-3">
                           <div
-                            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                              isHovered
-                                ? 'bg-[#C87D32] scale-125 ring-2 ring-[#C87D32]/35'
-                                : isActive
+                            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isHovered
+                              ? 'bg-[#C87D32] scale-125 ring-2 ring-[#C87D32]/35'
+                              : isActive
                                 ? 'bg-[#C87D32] ring-2 ring-[#C87D32]/35 scale-110'
                                 : 'bg-[#F8F4EB] dark:bg-[#060B14] border border-[#121926]/30 dark:border-[#F5EFE6]/30'
-                            }`}
+                              }`}
                           />
                           {/* Quiet pulse on active node */}
                           {isActive && (
@@ -621,11 +587,10 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
 
                         {/* Short Vertical Tick connecting Rail to Content */}
                         <div
-                          className={`w-[1px] h-3.5 ml-1 transition-colors duration-300 ${
-                            isHovered || isActive
-                              ? 'bg-[#C87D32]'
-                              : 'bg-[#121926]/20 dark:bg-[#F5EFE6]/20'
-                          }`}
+                          className={`w-[1px] h-3.5 ml-1 transition-colors duration-300 ${isHovered || isActive
+                            ? 'bg-[#C87D32]'
+                            : 'bg-[#121926]/20 dark:bg-[#F5EFE6]/20'
+                            }`}
                         />
                       </div>
 
@@ -641,34 +606,31 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
                         {/* Metric Title with expanding underline on hover */}
                         <div className="relative inline-block">
                           <h4
-                            className={`font-editorial text-sm sm:text-[15px] font-bold transition-colors leading-snug ${
-                              isHovered
-                                ? 'text-[#121926] dark:text-[#F5EFE6]'
-                                : isActive
+                            className={`font-editorial text-sm sm:text-[15px] font-bold transition-colors leading-snug ${isHovered
+                              ? 'text-[#121926] dark:text-[#F5EFE6]'
+                              : isActive
                                 ? 'text-[#121926] dark:text-[#F5EFE6]'
                                 : 'text-[#121926]/90 dark:text-[#F5EFE6]/90'
-                            }`}
+                              }`}
                           >
                             {node.metric}
                           </h4>
 
                           {/* Very thin gold underline expanding beneath title */}
                           <div
-                            className={`h-[1px] bg-[#C87D32] transition-all duration-300 ease-out mt-0.5 ${
-                              isHovered ? 'w-full opacity-100' : 'w-0 opacity-0'
-                            }`}
+                            className={`h-[1px] bg-[#C87D32] transition-all duration-300 ease-out mt-0.5 ${isHovered ? 'w-full opacity-100' : 'w-0 opacity-0'
+                              }`}
                           />
                         </div>
 
                         {/* Supporting Statement */}
                         <p
-                          className={`text-[11px] font-sans leading-relaxed transition-colors duration-200 ${
-                            isHovered
-                              ? 'text-[#121926] dark:text-[#F5EFE6] opacity-95'
-                              : isActive
+                          className={`text-[11px] font-sans leading-relaxed transition-colors duration-200 ${isHovered
+                            ? 'text-[#121926] dark:text-[#F5EFE6] opacity-95'
+                            : isActive
                               ? 'text-[#526071] dark:text-[#A6B4C9] opacity-90'
                               : 'text-[#526071] dark:text-[#A6B4C9] opacity-75'
-                          }`}
+                            }`}
                         >
                           {node.desc}
                         </p>
@@ -712,7 +674,7 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
       {/* ===================================================================== */}
       {/* 9. OUTCOMES SECTION — OVERSIZED TYPOGRAPHY (ZERO STATISTIC CARDS!)     */}
       {/* ===================================================================== */}
-      <section className="max-w-5xl mx-auto px-6 py-20 border-t border-[#C87D32]/15 relative z-10">
+      <section className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 border-t border-[#C87D32]/15 relative z-10">
         <div className="text-center space-y-1 mb-14">
           <span className="font-mono text-[10px] uppercase tracking-widest text-[#C87D32]">
             MEASURABLE INSTITUTIONAL OUTCOMES
@@ -765,44 +727,52 @@ export const SolutionsPage: React.FC<SolutionsPageProps> = ({ onOpenDemo, onNavi
       {/* ===================================================================== */}
       {/* 10. FINAL EDITORIAL CLOSING STATEMENT & MINIMAL CTA                  */}
       {/* ===================================================================== */}
-      <section className="py-28 text-center space-y-6 max-w-4xl mx-auto px-6 border-t border-[#C87D32]/15 relative z-10">
-        <div className="w-12 h-12 mx-auto rounded-full border border-[#C87D32] flex items-center justify-center bg-[#FAF5EB] dark:bg-[#0E1524] shadow-sm">
-          <span className="font-editorial text-xl font-bold text-[#C87D32] dark:text-[#E5A955] italic">
-            Æ
-          </span>
-        </div>
+      <section className="py-28 text-center space-y-6 max-w-5xl mx-auto px-6 border-t border-[#C87D32]/15 relative z-10">
+        <RevealEyebrow>
+          <div className="w-12 h-12 mx-auto rounded-full border border-[#C87D32] flex items-center justify-center bg-[#FAF5EB] dark:bg-[#0E1524] shadow-sm mb-3">
+            <span className="font-editorial text-xl font-bold text-[#C87D32] dark:text-[#E5A955] italic">
+              Æ
+            </span>
+          </div>
 
-        <div className="font-mono text-[10px] tracking-widest text-[#C87D32] uppercase">
-          AI-EDUCATION OPERATING SYSTEM
-        </div>
+          <div className="font-mono text-[10px] tracking-widest text-[#C87D32] uppercase">
+            AI-EDUCATION OPERATING SYSTEM
+          </div>
+        </RevealEyebrow>
 
-        <h2 className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight">
-          Your institution is complex. <br />
-          <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
-            Your operating system shouldn't be.
-          </span>
-        </h2>
+        <RevealHeading>
+          <h2 className="font-editorial text-4xl sm:text-6xl font-bold text-[#121926] dark:text-[#F5EFE6] leading-tight">
+            Your institution is complex. <br />
+            <span className="italic font-normal text-[#C87D32] dark:text-[#E5A955]">
+              Your operating system shouldn't be.
+            </span>
+          </h2>
+        </RevealHeading>
 
-        <p className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-lg mx-auto leading-relaxed">
-          A single foundation that adapts to the way your institution teaches, operates and grows.
-        </p>
+        <RevealDescription>
+          <p className="text-base sm:text-lg text-[#526071] dark:text-[#A6B4C9] font-sans max-w-lg mx-auto leading-relaxed">
+            A single foundation that adapts to the way your institution teaches, operates and grows.
+          </p>
+        </RevealDescription>
 
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={onOpenDemo}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-editorial text-sm font-bold italic tracking-wide hover:bg-[#C87D32] hover:text-white transition-all shadow-md flex items-center justify-center gap-2 group"
-          >
-            <span>Book an Institutional Demo</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
-          </button>
+        <RevealCTA>
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={onOpenDemo}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#121926] dark:bg-[#F5EFE6] text-[#FAF5EB] dark:text-[#070B13] font-editorial text-sm font-bold italic tracking-wide hover:bg-[#C87D32] hover:text-white transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
+            >
+              <span>Book an Institutional Demo</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
+            </button>
 
-          <button
-            onClick={() => onNavigate('features')}
-            className="w-full sm:w-auto px-6 py-3.5 rounded-full border border-[#C87D32]/50 hover:border-[#C87D32] text-[#121926] dark:text-[#F5EFE6] font-editorial text-sm italic hover:bg-[#FAF5EB]/60 dark:hover:bg-[#111A2E]/60 transition-all"
-          >
-            <span>Explore Campus Capabilities</span>
-          </button>
-        </div>
+            <button
+              onClick={() => onNavigate('features')}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full border border-[#C87D32]/50 hover:border-[#C87D32] text-[#121926] dark:text-[#F5EFE6] font-editorial text-sm italic hover:bg-[#FAF5EB]/60 dark:hover:bg-[#111A2E]/60 transition-all cursor-pointer"
+            >
+              <span>Explore Campus Capabilities</span>
+            </button>
+          </div>
+        </RevealCTA>
       </section>
 
     </div>

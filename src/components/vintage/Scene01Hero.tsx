@@ -10,27 +10,20 @@ interface Scene01HeroProps {
 
 export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore }) => {
   return (
-    <section className="relative min-h-screen w-full flex flex-col items-center justify-between px-6 pt-28 pb-12 overflow-hidden parchment-grain">
-      
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-between px-6 pt-28 pb-16 sm:pb-24 overflow-hidden parchment-grain">
+
+      {/* Background Watermark (Hero Section Only) */}
+      <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-center">
+        <div className="font-serif text-[18vw] lg:text-[20vw] font-bold tracking-widest text-[#121926] dark:text-[#F5EFE6] leading-none uppercase text-center px-4 select-none opacity-[0.07] dark:opacity-[0.09]">
+          EDUCATION
+        </div>
+      </div>
+
       {/* Subtle Atmospheric Ambient Glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#38BDF8]/10 dark:bg-[#38BDF8]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center my-auto">
-        
-        {/* 1. Academic Seal Eyebrow at the top */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#C5A059]/40 bg-[#FAF6EE]/80 dark:bg-[#0E1729]/80 backdrop-blur-sm text-xs tracking-[0.25em] uppercase font-semibold text-[#8C6B28] dark:text-[#D4AF37] mb-4 shadow-sm"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8] animate-pulse" />
-          <span>Intelligent Digital Campus</span>
-          <span className="text-[#C5A059]">•</span>
-          <span className="font-serif italic font-normal lowercase tracking-normal">circa 2026</span>
-        </motion.div>
-
-        {/* 2. Campus Architectural Illustration (Cleanly above the text) */}
+        {/* Campus Architectural Illustration (Cleanly above the text) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -42,7 +35,7 @@ export const Scene01Hero: React.FC<Scene01HeroProps> = ({ onOpenDemo, onExplore 
 
         {/* 3. Text cleanly BELOW the Campus illustration */}
         <div className="text-center max-w-3xl mx-auto space-y-4 pt-2">
-          
+
           {/* Master Editorial Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}

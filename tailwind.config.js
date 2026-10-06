@@ -49,7 +49,8 @@ export default {
         serif: ['Cormorant Garamond', 'Georgia', 'serif'],
         display: ['Cinzel', 'Cormorant Garamond', 'serif'],
         sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        editorial: ['Cormorant Garamond', 'Georgia', 'serif'],
       },
       backgroundImage: {
         'parchment-texture': "radial-gradient(#C5A059 0.75px, transparent 0.75px), radial-gradient(#0B1220 0.5px, #FAF6EE 0.5px)",
