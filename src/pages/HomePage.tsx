@@ -1,84 +1,108 @@
 import React from 'react';
 import type { PageId } from '../types';
 import { Scene01Hero } from '../components/vintage/Scene01Hero';
-import { Scene02OldCampus } from '../components/vintage/Scene02OldCampus';
-import { Scene03Transformation } from '../components/vintage/Scene03Transformation';
-import { Scene04SmartCampus } from '../components/vintage/Scene04SmartCampus';
-import { Scene05SmartTimetable } from '../components/vintage/Scene05SmartTimetable';
-import { Scene06AIStudyBuddy } from '../components/vintage/Scene06AIStudyBuddy';
-import { Scene07AdaptiveLearning } from '../components/vintage/Scene07AdaptiveLearning';
-import { Scene08Exams } from '../components/vintage/Scene08Exams';
-import { Scene09FinanceTally } from '../components/vintage/Scene09FinanceTally';
-import { Scene10ParentConnection } from '../components/vintage/Scene10ParentConnection';
-import { Scene11CampusCommunication } from '../components/vintage/Scene11CampusCommunication';
-import { Scene12Personas } from '../components/vintage/Scene12Personas';
-import { Scene13Solutions } from '../components/vintage/Scene13Solutions';
-import { Scene14Security } from '../components/vintage/Scene14Security';
-import { Scene15Pricing } from '../components/vintage/Scene15Pricing';
-import { Scene16FinalCTA } from '../components/vintage/Scene16FinalCTA';
+import { Scene02BlueprintOperations } from '../components/vintage/Scene02BlueprintOperations';
+import { Scene03FragmentedToConnected } from '../components/vintage/Scene03FragmentedToConnected';
+import { Scene04YourPeople } from '../components/vintage/Scene04YourPeople';
+import { Scene05StudyBuddy } from '../components/vintage/Scene05StudyBuddy';
+import { Scene06SmartTimetable } from '../components/vintage/Scene06SmartTimetable';
+import { Scene07FinanceTally } from '../components/vintage/Scene07FinanceTally';
+import { Scene08ExamsReportCard } from '../components/vintage/Scene08ExamsReportCard';
+import { Scene09ParentConnection } from '../components/vintage/Scene09ParentConnection';
+import { Scene10IntelligentCampus } from '../components/vintage/Scene10IntelligentCampus';
+import { Scene11Implementation } from '../components/vintage/Scene11Implementation';
+import { Scene12SecurityTeaser } from '../components/vintage/Scene12SecurityTeaser';
+import { Scene13PricingTeaser } from '../components/vintage/Scene13PricingTeaser';
+import { Scene14FAQ } from '../components/vintage/Scene14FAQ';
+import { Scene15FinalCTA } from '../components/vintage/Scene15FinalCTA';
 
 interface HomePageProps {
-  onNavigate: (page: PageId) => void;
-  onOpenDemo: () => void;
+    onNavigate: (page: PageId) => void;
+    onOpenDemo: () => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDemo }) => {
-  const scrollToNext = () => {
-    const el = document.getElementById('scene-02');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+    const scrollToNext = () => {
+        const el = document.getElementById('scene-02');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    };
 
-  return (
-    <div className="w-full">
-      {/* Scene 1: Hero */}
-      <Scene01Hero onOpenDemo={onOpenDemo} onExplore={scrollToNext} />
+    return (
+        <div className="w-full">
+            {/* =========================================================================
+          HERO SECTION (LOCKED — EXACTLY AS IT IS)
+      ========================================================================= */}
+            <Scene01Hero onOpenDemo={onOpenDemo} onExplore={scrollToNext} />
 
-      {/* Scene 2: The Old Campus */}
-      <div id="scene-02">
-        <Scene02OldCampus />
-      </div>
+            {/* =========================================================================
+          SECTION 01 — ONE CAMPUS. EVERY OPERATION. (Architectural Blueprint)
+      ========================================================================= */}
+            <Scene02BlueprintOperations />
 
-      {/* Scene 3: The Transformation */}
-      <Scene03Transformation />
+            {/* =========================================================================
+          SECTION 02 — FROM FRAGMENTED TO CONNECTED (Transformation Matrix)
+      ========================================================================= */}
+            <Scene03FragmentedToConnected />
 
-      {/* Scene 4: Smart Campus */}
-      <Scene04SmartCampus />
+            {/* =========================================================================
+          SECTION 03 — YOUR CAMPUS, YOUR PEOPLE (Adaptive Role Perspectives)
+      ========================================================================= */}
+            <Scene04YourPeople />
 
-      {/* Scene 5: Smart Timetable */}
-      <Scene05SmartTimetable />
+            {/* =========================================================================
+          SECTION 04 — AI STUDY BUDDY (Curriculum Grounding & Citations)
+      ========================================================================= */}
+            <Scene05StudyBuddy />
 
-      {/* Scene 6: AI Study Buddy */}
-      <Scene06AIStudyBuddy />
+            {/* =========================================================================
+          SECTION 05 — SMART TIMETABLE (Autonomous Proxy Allocation)
+      ========================================================================= */}
+            <Scene06SmartTimetable />
 
-      {/* Scene 7: Adaptive Learning */}
-      <Scene07AdaptiveLearning />
+            {/* =========================================================================
+          SECTION 06 — FINANCE + TALLY (2-Way Real-Time Ledger Sync)
+      ========================================================================= */}
+            <Scene07FinanceTally />
 
-      {/* Scene 8: Exams & Assessment */}
-      <Scene08Exams />
+            {/* =========================================================================
+          SECTION 07 — EXAMS TO REPORT CARD (Continuous Assessment Lifecycle)
+      ========================================================================= */}
+            <Scene08ExamsReportCard />
 
-      {/* Scene 9: Finance + Tally */}
-      <Scene09FinanceTally />
+            {/* =========================================================================
+          SECTION 08 — PARENT CONNECTION (Multi-Child Portal)
+      ========================================================================= */}
+            <Scene09ParentConnection />
 
-      {/* Scene 10: Parent Connection */}
-      <Scene10ParentConnection />
+            {/* =========================================================================
+          SECTION 09 — THE INTELLIGENT CAMPUS (Panoramic Synthesis)
+      ========================================================================= */}
+            <Scene10IntelligentCampus />
 
-      {/* Scene 11: Campus Communication */}
-      <Scene11CampusCommunication />
+            {/* =========================================================================
+          SECTION 10 — 14-DAY IMPLEMENTATION (Zero Downtime Roadmap)
+      ========================================================================= */}
+            <Scene11Implementation />
 
-      {/* Scene 12: Personas (Interactive Campus Illustration) */}
-      <Scene12Personas />
+            {/* =========================================================================
+          SECTION 11 — SECURITY TEASER (Institutional Sovereign Vault)
+      ========================================================================= */}
+            <Scene12SecurityTeaser onNavigate={onNavigate} />
 
-      {/* Scene 13: Solutions */}
-      <Scene13Solutions onOpenDemo={onOpenDemo} />
+            {/* =========================================================================
+          SECTION 12 — PRICING TEASER (Transparent Institutional Roll)
+      ========================================================================= */}
+            <Scene13PricingTeaser onNavigate={onNavigate} />
 
-      {/* Scene 14: Security Vault */}
-      <Scene14Security />
+            {/* =========================================================================
+          SECTION 13 — FAQ (Essential Inquiries)
+      ========================================================================= */}
+            <Scene14FAQ />
 
-      {/* Scene 15: Admission Rolls (Pricing) */}
-      <Scene15Pricing onOpenDemo={onOpenDemo} />
-
-      {/* Scene 16: Final CTA */}
-      <Scene16FinalCTA onOpenDemo={onOpenDemo} onNavigate={onNavigate} />
-    </div>
-  );
+            {/* =========================================================================
+          SECTION 14 — FINAL CTA (Illuminated Campus Invitation)
+      ========================================================================= */}
+            <Scene15FinalCTA onOpenDemo={onOpenDemo} onNavigate={onNavigate} />
+        </div>
+    );
 };

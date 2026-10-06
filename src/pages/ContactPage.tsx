@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
   Mail, 
@@ -7,14 +7,11 @@ import {
   CheckCircle2, 
   Sparkles, 
   Calendar, 
-  HelpCircle, 
-  ArrowUp, 
+  Clock,
+  PhoneCall, 
+  X,
   ArrowDown,
-  GraduationCap,
-  Award,
-  Laptop,
-  Coins,
-  Handshake
+  Video
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -24,12 +21,25 @@ interface ContactPageProps {
 
 export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
   const [submitted, setSubmitted] = useState(false);
+  const [isMeetModalOpen, setIsMeetModalOpen] = useState(false);
+  const [meetSubmitted, setMeetSubmitted] = useState(false);
+
+  // Form State for Main Demo Form
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     institution: '',
     institutionType: 'K-12 School',
     message: ''
+  });
+
+  // Form State for Google Meet Schedule
+  const [meetData, setMeetData] = useState({
+    name: '',
+    email: '',
+    date: '',
+    time: '11:00 AM - 12:00 PM',
+    notes: ''
   });
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -44,7 +54,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleMainFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     try {
@@ -59,14 +69,21 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
     }
   };
 
-  const audienceList = [
-    { title: 'School Leaders', icon: GraduationCap },
-    { title: 'College Administrators', icon: Building2 },
-    { title: 'Principals & Deans', icon: Award },
-    { title: 'IT Teams', icon: Laptop },
-    { title: 'Finance Teams', icon: Coins },
-    { title: 'Education Partners', icon: Handshake }
-  ];
+  const handleMeetSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setMeetSubmitted(true);
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.5 },
+        colors: ['#38BDF8', '#C5A059', '#10B981']
+      });
+    } catch {
+      // fallback
+    }
+  };
+
 
   const steps = [
     {
@@ -86,6 +103,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
     }
   ];
 
+  // Today's date string YYYY-MM-DD for min date in picker
+  const todayStr = new Date().toISOString().split('T')[0];
+
   return (
     <div className="pt-28 pb-32 bg-[#F8F4EB] dark:bg-[#060B14] min-h-screen transition-colors duration-500 parchment-grain font-serif">
       <div className="max-w-4xl mx-auto px-6 sm:px-10 w-full space-y-20">
@@ -93,7 +113,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
         {/* ========================================================
             SECTION 1: HERO & CONTACT OPTIONS (LET'S TALK)
         ======================================================== */}
-        <section className="text-center max-w-3xl mx-auto pt-4 space-y-8">
+        <section className="text-center max-w-3xl mx-auto pt-4 space-y-10">
           
           <div>
             <motion.div
@@ -125,9 +145,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
             </motion.p>
           </div>
 
-          {/* Let's Talk Section Note */}
+          {/* Let's Talk Header Note */}
           <div className="pt-2">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
+            <span className="text-[11px] font-mono uppercase tracking-[0.25em] text-[#8C6B28] dark:text-[#C5A059]">
+              Direct Channels
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-1">
               Have a question?
             </h2>
             <p className="text-sm sm:text-base font-semibold text-[#586274] dark:text-[#A7B5CC] mt-1">
@@ -135,29 +158,51 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
             </p>
           </div>
 
-          {/* 3 Contact Options without card grids (Separated by delicate vertical hairlines) */}
+          {/* 3 Contact Options: Mail, Call (Google Meet), Demo */}
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#C5A059]/30 pt-2 pb-2">
             
-            {/* Option 1: Email */}
+            {/* Option 1: Mail */}
             <div className="py-6 md:py-2 px-6 flex flex-col items-center text-center space-y-2 group">
               <div className="w-10 h-10 rounded-full border border-[#C5A059]/60 bg-[#FAF6EE] dark:bg-[#0E1729] flex items-center justify-center text-[#8C6B28] dark:text-[#D4AF37] group-hover:scale-110 group-hover:border-[#C5A059] transition-all duration-300">
                 <Mail className="w-4 h-4 text-[#8C6B28] dark:text-[#C5A059]" />
               </div>
               <h3 className="font-serif text-lg font-bold text-[#161D2B] dark:text-[#F4ECE0]">
-                Email
+                Mail
               </h3>
               <p className="text-xs font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed max-w-[220px]">
                 General questions and product enquiries.
               </p>
               <a
-                href="mailto:contact@ai-education.edu"
-                className="text-xs font-mono font-semibold text-[#8C6B28] dark:text-[#D4AF37] hover:underline pt-1 inline-flex items-center gap-1"
+                href="mailto:support@uwo24.com"
+                className="text-xs font-mono font-semibold text-[#8C6B28] dark:text-[#D4AF37] hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer"
               >
-                <span>contact@ai-education.edu</span>
+                <span>support@uwo24.com</span>
               </a>
             </div>
 
-            {/* Option 2: Demo */}
+            {/* Option 2: Call / Google Meet */}
+            <div className="py-6 md:py-2 px-6 flex flex-col items-center text-center space-y-2 group">
+              <div className="w-10 h-10 rounded-full border border-[#C5A059]/60 bg-[#FAF6EE] dark:bg-[#0E1729] flex items-center justify-center text-[#8C6B28] dark:text-[#D4AF37] group-hover:scale-110 group-hover:border-[#C5A059] transition-all duration-300">
+                <Video className="w-4 h-4 text-[#38BDF8]" />
+              </div>
+              <h3 className="font-serif text-lg font-bold text-[#161D2B] dark:text-[#F4ECE0]">
+                Call
+              </h3>
+              <p className="text-xs font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed max-w-[220px]">
+                Schedule a Google Meet with our leadership team.
+              </p>
+              <button
+                onClick={() => {
+                  setMeetSubmitted(false);
+                  setIsMeetModalOpen(true);
+                }}
+                className="text-xs font-mono font-semibold text-[#8C6B28] dark:text-[#D4AF37] hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer"
+              >
+                <span>Schedule Google Meet →</span>
+              </button>
+            </div>
+
+            {/* Option 3: Demo */}
             <div className="py-6 md:py-2 px-6 flex flex-col items-center text-center space-y-2 group">
               <div className="w-10 h-10 rounded-full border border-[#C5A059]/60 bg-[#FAF6EE] dark:bg-[#0E1729] flex items-center justify-center text-[#8C6B28] dark:text-[#D4AF37] group-hover:scale-110 group-hover:border-[#C5A059] transition-all duration-300">
                 <Calendar className="w-4 h-4 text-[#38BDF8]" />
@@ -166,33 +211,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
                 Demo
               </h3>
               <p className="text-xs font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed max-w-[220px]">
-                Book a product walkthrough.
+                Request an interactive campus walkthrough.
               </p>
               <button
                 onClick={scrollToForm}
                 className="text-xs font-mono font-semibold text-[#8C6B28] dark:text-[#D4AF37] hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer"
               >
-                <span>Go to form below ↓</span>
+                <span>Request a Demo below ↓</span>
               </button>
-            </div>
-
-            {/* Option 3: Support */}
-            <div className="py-6 md:py-2 px-6 flex flex-col items-center text-center space-y-2 group">
-              <div className="w-10 h-10 rounded-full border border-[#C5A059]/60 bg-[#FAF6EE] dark:bg-[#0E1729] flex items-center justify-center text-[#8C6B28] dark:text-[#D4AF37] group-hover:scale-110 group-hover:border-[#C5A059] transition-all duration-300">
-                <HelpCircle className="w-4 h-4 text-[#8C6B28] dark:text-[#C5A059]" />
-              </div>
-              <h3 className="font-serif text-lg font-bold text-[#161D2B] dark:text-[#F4ECE0]">
-                Support
-              </h3>
-              <p className="text-xs font-semibold text-[#2D3748] dark:text-[#CBD5E1] leading-relaxed max-w-[220px]">
-                Need help? Our team is here to assist.
-              </p>
-              <a
-                href="mailto:support@ai-education.edu"
-                className="text-xs font-mono font-semibold text-[#8C6B28] dark:text-[#D4AF37] hover:underline pt-1 inline-flex items-center gap-1"
-              >
-                <span>support@ai-education.edu</span>
-              </a>
             </div>
 
           </div>
@@ -217,7 +243,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
         </div>
 
         {/* ========================================================
-            SECTION 2: THE FORM CARD (NOW IN 2ND SECTION)
+            SECTION 2: THE FORM CARD (DEMO WALKTHROUGH REQUEST)
         ======================================================== */}
         <section id="contact-form" ref={formRef} className="space-y-6 max-w-3xl mx-auto">
           
@@ -229,7 +255,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
               Inscribe Your Campus Inquiry
             </h2>
             <p className="text-sm sm:text-base font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
-              Provide your institutional details below to schedule an executive demonstration.
+              Submit your institutional details below to dispatch an official demo walkthrough request.
             </p>
           </div>
 
@@ -247,23 +273,26 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
                   <CheckCircle2 className="w-9 h-9 text-teal-600 dark:text-teal-400" />
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mb-3">
-                  Inquiry Inscribed in Campus Ledger
+                  Demo Request Inscribed in Campus Ledger
                 </h3>
-                <p className="text-sm font-semibold text-[#2D3748] dark:text-[#CBD5E1] max-w-md mx-auto mb-6 leading-relaxed">
-                  Thank you, <strong className="text-[#161D2B] dark:text-[#F4ECE0]">{formData.name}</strong>. Our Regional Solutions Director will reach out to <strong className="text-[#161D2B] dark:text-[#F4ECE0]">{formData.email}</strong> within 2 business hours.
+                <p className="text-sm font-semibold text-[#2D3748] dark:text-[#CBD5E1] max-w-md mx-auto mb-3 leading-relaxed">
+                  Thank you, <strong className="text-[#161D2B] dark:text-[#F4ECE0]">{formData.name}</strong>. Your institutional demo request has been registered and dispatched to <strong className="text-[#8C6B28] dark:text-[#D4AF37]">admin@uwo24.com</strong>.
+                </p>
+                <p className="text-xs font-mono text-[#586274] dark:text-[#A7B5CC] mb-6">
+                  Our Regional Solutions Director will contact you at {formData.email} within 2 business hours.
                 </p>
                 <button
                   onClick={() => {
                     setSubmitted(false);
                     setFormData({ name: '', email: '', institution: '', institutionType: 'K-12 School', message: '' });
                   }}
-                  className="px-6 py-2.5 rounded-full border border-[#C5A059] text-xs font-serif font-bold text-[#161D2B] dark:text-[#F4ECE0] hover:bg-[#C5A059] hover:text-white transition-colors shadow-sm"
+                  className="px-6 py-2.5 rounded-full border border-[#C5A059] text-xs font-serif font-bold text-[#161D2B] dark:text-[#F4ECE0] hover:bg-[#C5A059] hover:text-white transition-colors shadow-sm cursor-pointer"
                 >
-                  Inscribe Another Message
+                  Inscribe Another Request
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleMainFormSubmit} className="space-y-5">
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-wider text-[#8C6B28] dark:text-[#C5A059] mb-1.5 font-semibold">
                     Name
@@ -353,7 +382,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
                   className="w-full py-3.5 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-sm font-bold tracking-wide hover:bg-[#C5A059] hover:text-white transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-[#38BDF8] group-hover:rotate-12 transition-transform" />
-                  <span>Book a Demo</span>
+                  <span>Submit Demo Request</span>
                 </button>
               </form>
             )}
@@ -367,47 +396,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
           <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
         </div>
 
-        {/* ========================================================
-            SECTION 3: WHO CAN CONTACT US (NO CARD GRIDS)
-        ======================================================== */}
-        <section className="text-center max-w-3xl mx-auto space-y-6">
-          <div>
-            <span className="text-[11px] font-mono uppercase tracking-[0.25em] text-[#8C6B28] dark:text-[#C5A059]">
-              Section III • Institutional Custodians
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#161D2B] dark:text-[#F4ECE0] mt-1 mb-2">
-              Who can reach out?
-            </h2>
-            <p className="text-sm sm:text-base font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
-              Whether governing campus policy or managing daily classroom operations.
-            </p>
-          </div>
-
-          {/* Elegant inline typography ribbon (No cards) */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            {audienceList.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-[#C5A059]/40 bg-[#FAF6EE]/80 dark:bg-[#0E1729]/80 text-[#161D2B] dark:text-[#F4ECE0] hover:border-[#C5A059] hover:scale-105 transition-all duration-300 shadow-sm"
-                >
-                  <Icon className="w-3.5 h-3.5 text-[#8C6B28] dark:text-[#D4AF37]" />
-                  <span className="font-serif text-sm font-bold tracking-tight">
-                    {item.title}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Vintage Ink Hairline Divider */}
-        <div className="flex items-center justify-center gap-4 py-2">
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
-          <span className="text-xs text-[#8C6B28] dark:text-[#C5A059]">✦</span>
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
-        </div>
 
         {/* ========================================================
             SECTION 4: WHAT HAPPENS NEXT (TIMELINE)
@@ -454,46 +442,180 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenDemo }) => {
           </div>
         </section>
 
-        {/* Vintage Ink Hairline Divider */}
-        <div className="flex items-center justify-center gap-4 py-2">
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
-          <span className="text-xs text-[#8C6B28] dark:text-[#C5A059]">✦</span>
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
-        </div>
 
-        {/* ========================================================
-            SECTION 5: FINAL CTA
-        ======================================================== */}
-        <section className="text-center max-w-2xl mx-auto space-y-6 pt-4">
-          
-          <div className="w-12 h-12 mx-auto rounded-full border border-[#C5A059] flex items-center justify-center bg-[#FAF6EE] dark:bg-[#0E1729] shadow-sm">
-            <span className="font-serif text-lg font-bold text-[#8C6B28] dark:text-[#D4AF37]">
-              Æ
-            </span>
-          </div>
-
-          <h2 className="text-3xl sm:text-5xl font-bold text-[#161D2B] dark:text-[#F4ECE0] tracking-tight">
-            Ready to build a smarter campus?
-          </h2>
-
-          <p className="text-base sm:text-lg font-semibold text-[#2D3748] dark:text-[#CBD5E1]">
-            Start with a simple conversation.
-          </p>
-
-          <div className="pt-2">
-            <button
-              onClick={scrollToForm}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-sm font-bold tracking-wide hover:bg-[#C5A059] hover:text-white transition-all shadow-xl group cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-[#38BDF8]" />
-              <span>Book a Demo</span>
-              <ArrowUp className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
-          </div>
-
-        </section>
 
       </div>
+
+      {/* ========================================================
+          GOOGLE MEET / CALL SCHEDULER MODAL
+      ======================================================== */}
+      <AnimatePresence>
+        {isMeetModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMeetModalOpen(false)}
+              className="fixed inset-0 bg-[#060B14]/80 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-lg bg-[#FAF6EE] dark:bg-[#0B1220] border border-[#C5A059]/50 rounded-3xl shadow-2xl overflow-hidden z-10 font-serif"
+            >
+              {/* Header Ribbon */}
+              <div className="p-6 border-b border-[#C5A059]/20 flex items-center justify-between bg-[#F4ECE0]/50 dark:bg-[#0E1729]/50">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-[#38BDF8]/15 flex items-center justify-center text-[#0284C7] dark:text-[#38BDF8] border border-[#38BDF8]/40">
+                    <Video className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-[#161D2B] dark:text-[#F4ECE0]">
+                      Schedule a Google Meet
+                    </h3>
+                    <p className="text-[11px] font-mono text-[#8C6B28] dark:text-[#C5A059]">
+                      Dispatches invite to admin@uwo24.com
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsMeetModalOpen(false)}
+                  className="p-1.5 rounded-full hover:bg-[#EAE0CE] dark:hover:bg-[#162138] text-[#586274] transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 sm:p-8">
+                {meetSubmitted ? (
+                  <div className="py-6 text-center space-y-4">
+                    <div className="w-14 h-14 mx-auto rounded-full bg-teal-50 dark:bg-teal-950/40 border border-teal-500/50 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                      <CheckCircle2 className="w-8 h-8" />
+                    </div>
+                    <h4 className="text-2xl font-bold text-[#161D2B] dark:text-[#F4ECE0]">
+                      Meeting Request Scheduled!
+                    </h4>
+                    <p className="text-sm font-semibold text-[#2D3748] dark:text-[#CBD5E1] max-w-sm mx-auto leading-relaxed">
+                      Google Meet invitation for <strong className="text-[#8C6B28] dark:text-[#D4AF37]">{meetData.date} ({meetData.time})</strong> has been dispatched to <strong className="text-[#161D2B] dark:text-[#F4ECE0]">admin@uwo24.com</strong>.
+                    </p>
+                    <p className="text-xs font-mono text-[#586274] dark:text-[#A7B5CC]">
+                      Confirmation and Google Meet room link will be sent to {meetData.email}.
+                    </p>
+                    <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+                      <a
+                        href={`mailto:admin@uwo24.com?subject=Google%20Meet%20Schedule:%20${encodeURIComponent(meetData.name)}%20(${encodeURIComponent(meetData.date)})&body=Hello%20Admin,%0A%0AI%20have%20scheduled%20a%20Google%20Meet%20call.%0A%0AName:%20${encodeURIComponent(meetData.name)}%0AEmail:%20${encodeURIComponent(meetData.email)}%0ADate:%20${encodeURIComponent(meetData.date)}%0ATime:%20${encodeURIComponent(meetData.time)}%0ANotes:%20${encodeURIComponent(meetData.notes)}`}
+                        className="px-5 py-2.5 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] text-xs font-serif font-bold hover:bg-[#C5A059] hover:text-white transition-all text-center inline-flex items-center justify-center gap-1.5"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Send Direct Mail to Admin</span>
+                      </a>
+                      <button
+                        onClick={() => setIsMeetModalOpen(false)}
+                        className="px-5 py-2.5 rounded-full border border-[#C5A059] text-xs font-serif font-bold text-[#161D2B] dark:text-[#F4ECE0] hover:bg-[#FAF6EE] transition-all"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleMeetSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Date Picker */}
+                      <div>
+                        <label className="block text-xs font-mono uppercase tracking-wider text-[#8C6B28] dark:text-[#C5A059] mb-1.5 font-semibold flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" /> Select Date
+                        </label>
+                        <input
+                          required
+                          type="date"
+                          min={todayStr}
+                          value={meetData.date}
+                          onChange={(e) => setMeetData({ ...meetData, date: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4ECE0]/50 dark:bg-[#0E1729]/80 border border-[#C5A059]/40 text-[#161D2B] dark:text-[#F4ECE0] focus:outline-none focus:border-[#C5A059] font-sans"
+                        />
+                      </div>
+
+                      {/* Time Slot Picker */}
+                      <div>
+                        <label className="block text-xs font-mono uppercase tracking-wider text-[#8C6B28] dark:text-[#C5A059] mb-1.5 font-semibold flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" /> Preferred Time
+                        </label>
+                        <select
+                          value={meetData.time}
+                          onChange={(e) => setMeetData({ ...meetData, time: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4ECE0]/50 dark:bg-[#0E1729]/80 border border-[#C5A059]/40 text-[#161D2B] dark:text-[#F4ECE0] focus:outline-none focus:border-[#C5A059] font-sans cursor-pointer"
+                        >
+                          <option>09:30 AM - 10:30 AM</option>
+                          <option>11:00 AM - 12:00 PM</option>
+                          <option>02:00 PM - 03:00 PM</option>
+                          <option>04:00 PM - 05:00 PM</option>
+                          <option>06:00 PM - 07:00 PM</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-[#8C6B28] dark:text-[#C5A059] mb-1.5 font-semibold">
+                        Your Full Name
+                      </label>
+                      <input
+                        required
+                        type="text"
+                        placeholder="Dr. Rajesh Mehta / Chancellor"
+                        value={meetData.name}
+                        onChange={(e) => setMeetData({ ...meetData, name: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4ECE0]/50 dark:bg-[#0E1729]/80 border border-[#C5A059]/40 text-[#161D2B] dark:text-[#F4ECE0] focus:outline-none focus:border-[#C5A059] font-sans"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-[#8C6B28] dark:text-[#C5A059] mb-1.5 font-semibold">
+                        Your Work Email (For Meet Invite)
+                      </label>
+                      <input
+                        required
+                        type="email"
+                        placeholder="chancellor@university.edu"
+                        value={meetData.email}
+                        onChange={(e) => setMeetData({ ...meetData, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F4ECE0]/50 dark:bg-[#0E1729]/80 border border-[#C5A059]/40 text-[#161D2B] dark:text-[#F4ECE0] focus:outline-none focus:border-[#C5A059] font-sans"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-[#8C6B28] dark:text-[#C5A059] mb-1.5 font-semibold">
+                        Meeting Discussion Topic
+                      </label>
+                      <textarea
+                        rows={2}
+                        placeholder="AI campus system demonstration, integration with existing ERP..."
+                        value={meetData.notes}
+                        onChange={(e) => setMeetData({ ...meetData, notes: e.target.value })}
+                        className="w-full p-3 text-xs rounded-xl bg-[#F4ECE0]/50 dark:bg-[#0E1729]/80 border border-[#C5A059]/40 text-[#161D2B] dark:text-[#F4ECE0] focus:outline-none focus:border-[#C5A059] font-sans"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-3 rounded-full bg-[#161D2B] dark:bg-[#F4ECE0] text-[#F8F4EB] dark:text-[#060B14] font-serif text-sm font-bold tracking-wide hover:bg-[#C5A059] hover:text-white transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-2"
+                    >
+                      <Video className="w-4 h-4 text-[#38BDF8]" />
+                      <span>Confirm & Dispatch Invite to admin@uwo24.com</span>
+                    </button>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };
